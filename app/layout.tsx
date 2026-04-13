@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { UserProvider } from "@/components/context/UserContext"; // <-- import your UserProvider
 import { cookies } from "next/headers";
 import { cn } from "@/lib/utils";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,6 +52,7 @@ export default async function RootLayout({
           {/* Wrap your app in UserProvider so useUser() works everywhere */}
           <UserProvider>
             {children}
+            <Toaster position="top-right" richColors />
           </UserProvider>
         </ThemeProvider>
       </body>

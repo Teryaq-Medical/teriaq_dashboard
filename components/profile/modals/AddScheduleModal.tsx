@@ -7,11 +7,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 interface AddScheduleModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  schedule: { day: string; start_time: string; end_time: string };
+  schedule: { day: string; start_time: string; end_time: string; date?: string };
   setSchedule: (schedule: any) => void;
   onSave: (schedule: any) => Promise<void>;
 }
@@ -23,37 +24,60 @@ export default function AddScheduleModal({
   setSchedule,
   onSave,
 }: AddScheduleModalProps) {
+  const [loading, setLoading] = React.useState(false);
+  const daysOfWeek = [
+    { value: "mon", label: "Monday" }, { value: "tue", label: "Tuesday" },
+    { value: "wed", label: "Wednesday" }, { value: "thu", label: "Thursday" },
+    { value: "fri", label: "Friday" }, { value: "sat", label: "Saturday" },
+    { value: "sun", label: "Sunday" },
+  ];
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const scheduleData = { ...schedule, date: schedule.date || new Date().toISOString().split('T')[0] };
+      await onSave(scheduleData);
+      setSchedule({ day: "", start_time: "", end_time: "", date: "" });
+      onOpenChange(false);
+    } finally { setLoading(false); }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="bg-white rounded-[2rem] border-none shadow-2xl p-8">
         <DialogHeader>
-          <DialogTitle>Add Schedule Slot</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-slate-900">Add Schedule Slot</DialogTitle>
         </DialogHeader>
-        <Input
-          placeholder="Day (e.g., Monday)"
-          value={schedule.day}
-          onChange={(e) => setSchedule({ ...schedule, day: e.target.value })}
-        />
-        <Input
-          placeholder="Start time (e.g., 09:00)"
-          value={schedule.start_time}
-          onChange={(e) => setSchedule({ ...schedule, start_time: e.target.value })}
-        />
-        <Input
-          placeholder="End time (e.g., 17:00)"
-          value={schedule.end_time}
-          onChange={(e) => setSchedule({ ...schedule, end_time: e.target.value })}
-        />
-        <Button
-          onClick={async () => {
-            await onSave(schedule);
-            setSchedule({ day: "", start_time: "", end_time: "" });
-            onOpenChange(false);
-          }}
-          className="bg-[#00B0D0]"
-        >
-          Add
-        </Button>
+        <div className="space-y-5 mt-6">
+          <div className="space-y-2">
+            <Label className="font-bold text-slate-500 text-xs uppercase ml-1">Day of Week *</Label>
+            <select
+              value={schedule.day}
+              onChange={(e) => setSchedule({ ...schedule, day: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-[#00B0D0] h-12"
+            >
+              <option value="">Select day</option>
+              {daysOfWeek.map((day) => <option key={day.value} value={day.value}>{day.label}</option>)}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-500 text-xs uppercase ml-1">Start Time *</Label>
+              <Input type="time" value={schedule.start_time} onChange={(e) => setSchedule({ ...schedule, start_time: e.target.value })} className="rounded-xl bg-slate-50/50 h-12" />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-500 text-xs uppercase ml-1">End Time *</Label>
+              <Input type="time" value={schedule.end_time} onChange={(e) => setSchedule({ ...schedule, end_time: e.target.value })} className="rounded-xl bg-slate-50/50 h-12" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="font-bold text-slate-500 text-xs uppercase ml-1">Specific Date (Optional)</Label>
+            <Input type="date" value={schedule.date || ""} onChange={(e) => setSchedule({ ...schedule, date: e.target.value })} className="rounded-xl bg-slate-50/50 h-12" />
+          </div>
+          <Button onClick={handleSubmit} disabled={loading || !schedule.day} className="w-full bg-[#00B0D0] hover:bg-[#0096b0] h-14 rounded-2xl font-bold shadow-lg shadow-cyan-100">
+            {loading ? "Adding..." : "Save Schedule Slot"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

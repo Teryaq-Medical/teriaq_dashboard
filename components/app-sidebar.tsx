@@ -5,12 +5,12 @@ import { useUser } from "@/components/context/UserContext";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
-import { IconDashboard, IconFolder, IconUsers, IconListDetails } from "@tabler/icons-react";
+import { IconDashboard, IconFolder, IconUsers, IconListDetails, IconUserPlus } from "@tabler/icons-react";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user } = useUser();
 
-  if (!user) return null; // wait until user loads
+  if (!user) return null;
 
   let navItems = [];
 
@@ -21,6 +21,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       { title: "All Clinics", url: "/entities/clincs", icon: IconFolder },
       { title: "All Hospitals", url: "/entities/hospitals", icon: IconFolder },
       { title: "All Doctors", url: "/entities/doctors", icon: IconUsers },
+      { title: "Unregistered Doctors", url: "/entities/un-doctors", icon: IconUserPlus }, // ✅ added
       { title: "Lifecycle", url: "/lifecycle", icon: IconListDetails },
     ];
   } else if (user.user_type === "hospitals" || user.user_type === "clincs") {

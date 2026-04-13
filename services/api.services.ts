@@ -24,6 +24,7 @@ export const DashboardService = {
 };
 
 export const Entities = {
+  // ========== GET ==========
   getEntities: async (entity: string) => {
     const res = await api.get(`/dashboard/entities/${entity}/`);
     return res.data?.data ?? res.data ?? [];
@@ -41,19 +42,32 @@ export const Entities = {
     };
   },
 
-  // Basic info update
+  // ========== CREATE (Admin only) ==========
+  createEntity: async (entityType: string, data: any) => {
+    const res = await api.post(`/dashboard/entities/${entityType}/create/`, data);
+    return res.data;
+  },
+
+  // ========== DELETE (Admin only) ==========
+  deleteEntity: async (entityType: string, id: string | number) => {
+    const res = await api.delete(`/dashboard/entities/${entityType}/${id}/`);
+    return res.data;
+  },
+
+  // ========== BASIC INFO UPDATE ==========
   updateEntityBasicInfo: async (entityType: string, id: string | number, data: {
     name?: string;
     address?: string;
     phone?: string;
     email?: string;
     description?: string;
+    is_verified?: boolean; // added for doctors
   }) => {
     const res = await api.put(`/entities/${entityType}/${id}/update/`, data);
     return res.data;
   },
 
-  // About update
+  // ========== ABOUT/BIO UPDATE ==========
   updateEntityAbout: async (entityType: string, id: string | number, aboutData: {
     bio?: string;
     bio_details?: string;
@@ -64,7 +78,7 @@ export const Entities = {
     return res.data;
   },
 
-  // Insurance management
+  // ========== INSURANCE MANAGEMENT ==========
   addInsurance: async (entityType: string, id: string | number, insuranceData: {
     entity: string;
     status: string;
@@ -78,7 +92,7 @@ export const Entities = {
     return res.data;
   },
 
-  // Certificate management
+  // ========== CERTIFICATE MANAGEMENT ==========
   addCertificate: async (entityType: string, id: string | number, certificateData: {
     name: string;
     entity: string;
@@ -92,7 +106,7 @@ export const Entities = {
     return res.data;
   },
 
-  // Specialist management
+  // ========== SPECIALIST MANAGEMENT (Hospitals/Clinics only) ==========
   addSpecialist: async (entityType: string, id: string | number, specialistName: string) => {
     const res = await api.post(`/entities/${entityType}/${id}/specialist/add/`, { name: specialistName });
     return res.data;
@@ -103,19 +117,24 @@ export const Entities = {
     return res.data;
   },
 
-  // Doctor assignment management (supports both registered and unregistered)
+  // ========== DOCTOR ASSIGNMENT MANAGEMENT (Hospitals/Clinics only) ==========
   addDoctorToEntity: async (entityType: string, id: string | number, doctorData: any) => {
-  console.log("📤 Sending doctor data:", doctorData); // Debug log
-  const res = await api.post(`/entities/${entityType}/${id}/doctor/add/`, doctorData);
-  return res.data;
-},
+    console.log("📤 Sending doctor data:", doctorData);
+    const res = await api.post(`/entities/${entityType}/${id}/doctor/add/`, doctorData);
+    return res.data;
+  },
 
   removeDoctorFromEntity: async (entityType: string, id: string | number, assignmentId: string | number) => {
     const res = await api.delete(`/entities/${entityType}/${id}/doctor/${assignmentId}/remove/`);
     return res.data;
   },
 
-  // Doctor schedule management
+  // ========== DOCTOR-SPECIFIC ENDPOINTS ==========
+  updateDoctorSpecialist: async (doctorId: string | number, specialistName: string) => {
+    const res = await api.put(`/doctors/${doctorId}/specialist/update/`, { name: specialistName });
+    return res.data;
+  },
+
   addDoctorSchedule: async (doctorId: string | number, scheduleData: {
     day: string;
     start_time: string;
@@ -138,6 +157,42 @@ export const Entities = {
     date?: string;
   }) => {
     const res = await api.put(`/doctors/${doctorId}/schedule/${scheduleId}/update/`, scheduleData);
+    return res.data;
+  },
+
+  addDoctorCertificate: async (doctorId: string | number, certificateData: {
+    name: string;
+    entity: string;
+  }) => {
+    const res = await api.post(`/doctors/${doctorId}/certificate/add/`, certificateData);
+    return res.data;
+  },
+
+  removeDoctorCertificate: async (doctorId: string | number, certId: string | number) => {
+    const res = await api.delete(`/doctors/${doctorId}/certificate/${certId}/remove/`);
+    return res.data;
+  },
+
+  addDoctorInsurance: async (doctorId: string | number, insuranceData: {
+    entity: string;
+    status: string;
+  }) => {
+    const res = await api.post(`/doctors/${doctorId}/insurance/add/`, insuranceData);
+    return res.data;
+  },
+
+  removeDoctorInsurance: async (doctorId: string | number, insuranceId: string | number) => {
+    const res = await api.delete(`/doctors/${doctorId}/insurance/${insuranceId}/remove/`);
+    return res.data;
+  },
+
+  // ========== APPOINTMENT MANAGEMENT ==========
+  updateAppointmentStatus: async (appointmentId: string | number, status: string, bookingCode?: string) => {
+    const payload: any = { status };
+    if (bookingCode) {
+      payload.booking_code = bookingCode;
+    }
+    const res = await api.patch(`/appointments/${appointmentId}/`, payload);
     return res.data;
   },
 };

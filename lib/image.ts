@@ -1,3 +1,5 @@
+// lib/image.ts
+
 /**
  * Constructs a full Cloudinary URL or returns a fallback
  * @param path - The string coming from the database (partial path or null)
@@ -16,12 +18,23 @@ export const getImageUrl = (path: string | null | undefined, type: 'doctor' | 'e
     return path;
   }
 
-  // 3. Prefix with your Cloudinary base URL
-  // Replace 'your-cloud-name' with your actual Cloudinary cloud name
-  const CLOUDINARY_BASE = "https://res.cloudinary.com/drswiflul/";
-  
-  // Ensure we don't double slash if the path starts with /
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  // 3. Cloudinary configuration (use environment variable)
+  const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'drswiflul';
+  const CLOUDINARY_BASE = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/`;
 
-  return `${CLOUDINARY_BASE}${cleanPath}`;
+  // 4. Normalize the path: remove leading slashes
+  let cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+  // 5. If the path already contains '/image/upload/', just prepend base
+  if (cleanPath.includes('/image/upload/')) {
+    return `${CLOUDINARY_BASE}${cleanPath}`;
+  }
+
+  // 6. Otherwise, assume it's a public ID (or a path without the upload part)
+  //    Ensure we add '/image/upload/'
+  //    Also remove any 'image/upload' prefix if present (e.g., if the path is "image/upload/public_id")
+  if (cleanPath.startsWith('image/upload/')) {
+    cleanPath = cleanPath.replace('image/upload/', '');
+  }
+  return `${CLOUDINARY_BASE}image/upload/${cleanPath}`;
 };

@@ -1,7 +1,8 @@
-"use client"
+// components/data-table.tsx
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from "react";
+import Link from "next/link";
 import {
   closestCenter,
   DndContext,
@@ -11,21 +12,22 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from "@dnd-kit/core"
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   IconCircleCheckFilled,
   IconDotsVertical,
   IconGripVertical,
   IconLoader,
   IconStarFilled,
-} from "@tabler/icons-react"
+  IconEdit,
+} from "@tabler/icons-react";
 import {
   flexRender,
   getCoreRowModel,
@@ -35,18 +37,28 @@ import {
   useReactTable,
   type ColumnDef,
   type Row,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -54,11 +66,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
+import { toast } from "sonner";
+import { Entities } from "@/services/api.services";
 
 interface DataTableProps {
   data: any[];
-  entityType: string; 
+  entityType: string;
+  onDelete?: (id: number) => Promise<void>;
+  onRefresh?: () => void;
+  isAdmin?: boolean;
 }
 
 function DragHandle({ id }: { id: number | string }) {
@@ -104,11 +121,26 @@ function DraggableRow({ row }: { row: Row<any> }) {
   );
 }
 
-export function DataTable({ data: initialData, entityType }: DataTableProps) {
-  const [data, setData] = React.useState(() => initialData || []);
+export function DataTable({ data: initialData, entityType, onDelete, onRefresh, isAdmin }: DataTableProps) {
+  // ✅ Treat both 'doctors' and 'un-doctors' as doctor type
+  const isDoctor = entityType === "doctors" || entityType === "un-doctors";
+  
+  const safeInitialData = React.useMemo(() => (Array.isArray(initialData) ? initialData : []), [initialData]);
+  const [data, setData] = React.useState(safeInitialData);
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [editingEntity, setEditingEntity] = React.useState<any>(null);
+  const [editForm, setEditForm] = React.useState({
+    name: "",
+    address: "",
+    phone: "",
+    email: "",
+    description: "",
+    is_verified: false,
+  });
+  const [submitting, setSubmitting] = React.useState(false);
 
   React.useEffect(() => {
-    setData(initialData || []);
+    setData(Array.isArray(initialData) ? initialData : []);
   }, [initialData]);
 
   const sensors = useSensors(
@@ -117,10 +149,64 @@ export function DataTable({ data: initialData, entityType }: DataTableProps) {
     useSensor(KeyboardSensor)
   );
 
-  const columns = React.useMemo<ColumnDef<any>[]>(() => {
-    const isDoctor = entityType === "doctors";
+  const openEditModal = (entity: any) => {
+    setEditingEntity(entity);
+    setEditForm({
+      name: isDoctor ? entity.full_name : entity.name,
+      address: entity.address || "",
+      phone: isDoctor ? entity.phone_number : entity.phone,
+      email: entity.email || "",
+      description: entity.description || "",
+      is_verified: isDoctor ? entity.is_verified : false,
+    });
+    setEditModalOpen(true);
+  };
 
-    return [
+  const handleEditSubmit = async () => {
+    if (!editingEntity) return;
+    setSubmitting(true);
+    try {
+      const payload: any = {
+        name: editForm.name,
+        address: editForm.address,
+        phone: editForm.phone,
+        email: editForm.email,
+        description: editForm.description,
+      };
+      if (isDoctor) {
+        payload.is_verified = editForm.is_verified;
+      }
+      await Entities.updateEntityBasicInfo(entityType, editingEntity.id, payload);
+      toast.success("Entity updated successfully.");
+      setEditModalOpen(false);
+      if (onRefresh) onRefresh();
+      else {
+        setData((prev) =>
+          prev.map((item) =>
+            item.id === editingEntity.id
+              ? {
+                  ...item,
+                  ...(isDoctor
+                    ? { full_name: editForm.name, phone_number: editForm.phone, is_verified: editForm.is_verified }
+                    : { name: editForm.name, phone: editForm.phone }),
+                  address: editForm.address,
+                  email: editForm.email,
+                  description: editForm.description,
+                }
+              : item
+          )
+        );
+      }
+    } catch (error: any) {
+      console.error("Update error:", error);
+      toast.error(error.response?.data?.message || "Failed to update entity.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const columns = React.useMemo<ColumnDef<any>[]>(() => {
+    const baseColumns: ColumnDef<any>[] = [
       {
         id: "drag",
         header: () => null,
@@ -144,18 +230,16 @@ export function DataTable({ data: initialData, entityType }: DataTableProps) {
       {
         accessorKey: "id",
         header: "ID",
-        cell: ({ row }) => <span className="font-mono text-xs text-slate-400">#{row.original.id}</span>
+        cell: ({ row }) => <span className="font-mono text-xs text-slate-400">#{row.original.id}</span>,
       },
       {
         accessorKey: isDoctor ? "full_name" : "name",
         header: "Name",
         cell: ({ row }) => {
           const name = isDoctor ? row.original.full_name : row.original.name;
-          const entityId = row.original.id;
-          
           return (
-            <Link 
-              href={`/entities/${entityType}/${entityId}`}
+            <Link
+              href={`/entities/${entityType}/${row.original.id}`}
               className="font-bold text-[#00B0D0] hover:text-[#21b3d5] transition-colors"
             >
               {name || "Unnamed Entity"}
@@ -188,7 +272,12 @@ export function DataTable({ data: initialData, entityType }: DataTableProps) {
           if (isDoctor) {
             const isVerified = row.original.is_verified;
             return (
-              <Badge variant="secondary" className={`gap-1.5 py-1 px-3 rounded-full border-none ${isVerified ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}`}>
+              <Badge
+                variant="secondary"
+                className={`gap-1.5 py-1 px-3 rounded-full border-none ${
+                  isVerified ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600"
+                }`}
+              >
                 {isVerified ? (
                   <IconCircleCheckFilled className="size-3.5" />
                 ) : (
@@ -208,32 +297,45 @@ export function DataTable({ data: initialData, entityType }: DataTableProps) {
           );
         },
       },
-      {
-        id: "actions",
-        cell: ({ row }) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8 rounded-full">
-                <IconDotsVertical className="size-4 text-slate-400" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-xl p-2 min-w-[160px]">
-              <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                <Link href={`/entities/${entityType}/${row.original.id}`}>
-                  View Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-lg cursor-pointer">Edit Details</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive font-semibold rounded-lg cursor-pointer">
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
-      },
     ];
-  }, [entityType]);
+
+    const actionsColumn: ColumnDef<any> = {
+      id: "actions",
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8 rounded-full">
+              <IconDotsVertical className="size-4 text-slate-400" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-xl p-2 min-w-[160px]">
+            <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+              <Link href={`/entities/${entityType}/${row.original.id}`}>View Profile</Link>
+            </DropdownMenuItem>
+            {isAdmin && (
+              <>
+                <DropdownMenuItem
+                  className="rounded-lg cursor-pointer"
+                  onClick={() => openEditModal(row.original)}
+                >
+                  <IconEdit size={14} className="mr-2" /> Edit Details
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive font-semibold rounded-lg cursor-pointer"
+                  onClick={() => onDelete?.(row.original.id)}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    };
+
+    return [...baseColumns, actionsColumn];
+  }, [entityType, isAdmin, onDelete, isDoctor]);
 
   const table = useReactTable({
     data,
@@ -245,7 +347,7 @@ export function DataTable({ data: initialData, entityType }: DataTableProps) {
     getRowId: (row) => row.id.toString(),
   });
 
-  const dataIds = React.useMemo(() => data.map((d) => d.id), [data]);
+  const dataIds = React.useMemo(() => (Array.isArray(data) ? data.map((d) => d.id) : []), [data]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -259,394 +361,117 @@ export function DataTable({ data: initialData, entityType }: DataTableProps) {
   }
 
   return (
-    <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="rounded-[1.5rem] border border-slate-100 bg-white shadow-sm overflow-hidden">
-        <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
-          <Table>
-            <TableHeader className="bg-slate-50/50">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-slate-100">
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="h-12 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <DraggableRow key={row.id} row={row} />
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-32 text-center text-slate-400 italic">
-                    No {entityType} entries found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </SortableContext>
-      </div>
-    </DndContext>
-  );
-}
-
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
-  {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />,
-  },
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "header",
-    header: "Header",
-    cell: ({ row }) => {
-      return <TableCellViewer item={row.original} />
-    },
-    enableHiding: false,
-  },
-  {
-    accessorKey: "type",
-    header: "Section Type",
-    cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.type}
-        </Badge>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.status === "Done" ? (
-          <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
-        ) : (
-          <IconLoader />
-        )}
-        {row.original.status}
-      </Badge>
-    ),
-  },
-  {
-    accessorKey: "target",
-    header: () => <div className="w-full text-right">Target</div>,
-    cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-target`} className="sr-only">
-          Target
-        </Label>
-        <Input
-          className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.target}
-          id={`${row.original.id}-target`}
-        />
-      </form>
-    ),
-  },
-  {
-    accessorKey: "limit",
-    header: () => <div className="w-full text-right">Limit</div>,
-    cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-          Limit
-        </Label>
-        <Input
-          className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.limit}
-          id={`${row.original.id}-limit`}
-        />
-      </form>
-    ),
-  },
-  {
-    accessorKey: "reviewer",
-    header: "Reviewer",
-    cell: ({ row }) => {
-      const isAssigned = row.original.reviewer !== "Assign reviewer"
-
-      if (isAssigned) {
-        return row.original.reviewer
-      }
-
-      return (
-        <>
-          <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-            Reviewer
-          </Label>
-          <Select>
-            <SelectTrigger
-              className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-              size="sm"
-              id={`${row.original.id}-reviewer`}
-            >
-              <SelectValue placeholder="Assign reviewer" />
-            </SelectTrigger>
-            <SelectContent align="end">
-              <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-              <SelectItem value="Jamik Tashpulatov">
-                Jamik Tashpulatov
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </>
-      )
-    },
-  },
-  {
-    id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-            size="icon"
-          >
-            <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
-]
-
-
-
-
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig
-
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
-  const isMobile = useIsMobile()
-
-  return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
-        <Button variant="link" className="text-foreground w-fit px-0 text-left">
-          {item.header}
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
-          <DrawerDescription>
-            Showing total visitors for the last 6 months
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          {!isMobile && (
-            <>
-              <ChartContainer config={chartConfig}>
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 0,
-                    right: 10,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                    hide
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="var(--color-mobile)"
-                    fillOpacity={0.6}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="var(--color-desktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-              <Separator />
-              <div className="grid gap-2">
-                <div className="flex gap-2 leading-none font-medium">
-                  Trending up by 5.2% this month{" "}
-                  <IconTrendingUp className="size-4" />
-                </div>
-                <div className="text-muted-foreground">
-                  Showing total visitors for the last 6 months. This is just
-                  some random text to test the layout. It spans multiple lines
-                  and should wrap around.
-                </div>
-              </div>
-              <Separator />
-            </>
-          )}
-          <form className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="header">Header</Label>
-              <Input id="header" defaultValue={item.header} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="type">Type</Label>
-                <Select defaultValue={item.type}>
-                  <SelectTrigger id="type" className="w-full">
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Table of Contents">
-                      Table of Contents
-                    </SelectItem>
-                    <SelectItem value="Executive Summary">
-                      Executive Summary
-                    </SelectItem>
-                    <SelectItem value="Technical Approach">
-                      Technical Approach
-                    </SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Capabilities">Capabilities</SelectItem>
-                    <SelectItem value="Focus Documents">
-                      Focus Documents
-                    </SelectItem>
-                    <SelectItem value="Narrative">Narrative</SelectItem>
-                    <SelectItem value="Cover Page">Cover Page</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="status">Status</Label>
-                <Select defaultValue={item.status}>
-                  <SelectTrigger id="status" className="w-full">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Done">Done</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Not Started">Not Started</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="target">Target</Label>
-                <Input id="target" defaultValue={item.target} />
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="limit">Limit</Label>
-                <Input id="limit" defaultValue={item.limit} />
-              </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="reviewer">Reviewer</Label>
-              <Select defaultValue={item.reviewer}>
-                <SelectTrigger id="reviewer" className="w-full">
-                  <SelectValue placeholder="Select a reviewer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                  <SelectItem value="Jamik Tashpulatov">
-                    Jamik Tashpulatov
-                  </SelectItem>
-                  <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </form>
+    <>
+      <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
+        <div className="rounded-[1.5rem] border border-slate-100 bg-white shadow-sm overflow-hidden">
+          <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
+            <Table>
+              <TableHeader className="bg-slate-50/50">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-slate-100">
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        className="h-12 text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                      >
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.length ? (
+                  table.getRowModel().rows.map((row) => <DraggableRow key={row.id} row={row} />)
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="h-32 text-center text-slate-400 italic">
+                      No {entityType} entries found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </SortableContext>
         </div>
-        <DrawerFooter>
-          <Button>Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  )
+      </DndContext>
+
+      {/* Edit Entity Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit {entityType.slice(0, -1)} Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-address">Address</Label>
+              <Input
+                id="edit-address"
+                value={editForm.address}
+                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Phone</Label>
+              <Input
+                id="edit-phone"
+                value={editForm.phone}
+                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                rows={3}
+                className="rounded-xl"
+              />
+            </div>
+            {isDoctor && (
+              <div className="flex items-center space-x-2 pt-2">
+                <Checkbox
+                  id="edit-is_verified"
+                  checked={editForm.is_verified}
+                  onCheckedChange={(checked) => setEditForm({ ...editForm, is_verified: !!checked })}
+                />
+                <Label htmlFor="edit-is_verified" className="text-slate-700 font-normal cursor-pointer">
+                  Verified
+                </Label>
+                <p className="text-xs text-slate-400 ml-2">(Mark as verified doctor)</p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="rounded-full">Cancel</Button>
+            <Button onClick={handleEditSubmit} disabled={submitting} className="rounded-full bg-[#00B0D0] hover:bg-[#21b3d5]">
+              {submitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

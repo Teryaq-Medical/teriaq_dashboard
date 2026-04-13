@@ -1,135 +1,68 @@
-import React from "react";
-import { IconMapPin, IconPhone, IconMail, IconStarFilled, IconEdit } from "@tabler/icons-react";
-import { Badge } from "@/components/ui/badge";
+// components/profile/ProfileHeader.tsx
 
-interface ProfileSidebarProps {
-  data: any;
-  isDoctor: boolean;
-  displayName: string;
-  rating: number;
-  profileImg: string;
+import React from "react";
+import Link from "next/link";
+import { IconArrowLeft, IconLogout } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+
+interface ProfileHeaderProps {
+  entityType: string;
   isOwner: boolean;
   onEditBasicInfo: () => void;
-  onEditAbout: () => void;
+  onLogout: () => void;
 }
 
-export default function ProfileSidebar({
-  data,
-  isDoctor,
-  displayName,
-  rating,
-  profileImg,
+export default function ProfileHeader({
+  entityType,
   isOwner,
   onEditBasicInfo,
-  onEditAbout,
-}: ProfileSidebarProps) {
+  onLogout,
+}: ProfileHeaderProps) {
   return (
-    <>
-      <div className="relative">
-        <div className="aspect-[4/3] rounded-[2.5rem] bg-white p-3 shadow-xl border overflow-hidden">
-          <div className="w-full h-full rounded-[2rem] bg-slate-100 overflow-hidden">
-            <img
-              src={profileImg}
-              alt={displayName}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = isDoctor
-                  ? "/placeholders/default-doctor.png"
-                  : "/placeholders/default-hospital.png";
-              }}
-            />
-          </div>
-        </div>
-        <Badge
-          className={`absolute -bottom-3 left-10 border-4 border-[#FAF9F6] py-1 px-4 rounded-full shadow-lg ${
-            data?.is_active || data?.is_verified ? "bg-green-500" : "bg-orange-500"
-          } text-white`}
+    <header className="grid grid-cols-3 items-center">
+      {/* Left column: Logo + brand name */}
+      <div className="flex items-center gap-4 justify-start">
+        <Link href="/dashboard">
+          <Image
+            src="/teriaq.svg"
+            height={50}
+            width={50}
+            alt="teriaq management"
+            className="cursor-pointer"
+          />
+        </Link>
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+          Teriaq Management
+        </p>
+      </div>
+
+      {/* Center column: Profile title (perfectly centered) */}
+      <div className="text-center">
+        <h2 className="text-xl font-bold text-slate-900 capitalize">
+          {entityType.replace('s', '')} Profile
+        </h2>
+      </div>
+
+      {/* Right column: Action buttons */}
+      <div className="flex justify-end gap-3">
+        {isOwner && (
+          <Button
+            onClick={onEditBasicInfo}
+            className="rounded-full px-5 bg-[#00B0D0] hover:bg-[#21b3d5] border-none shadow-lg shadow-cyan-500/20 text-white font-bold"
+          >
+            Edit Details
+          </Button>
+        )}
+        <Button
+          onClick={onLogout}
+          variant="outline"
+          className="rounded-full px-5 bg-amber-600 border-slate-200 hover:border-red-300 hover:bg-red-50 text-white hover:text-red-600"
         >
-          {data?.is_active || data?.is_verified ? "Verified" : "Pending"}
-        </Badge>
+          <IconLogout size={18} className="mr-2" />
+          Logout
+        </Button>
       </div>
-
-      <div className="px-4 space-y-3">
-        <div className="flex justify-between items-start">
-          <h1 className="text-3xl font-black text-slate-900 leading-tight">
-            {displayName}
-          </h1>
-          {isOwner && (
-            <button
-              onClick={onEditBasicInfo}
-              className="p-1 rounded-full hover:bg-slate-100 text-slate-400"
-            >
-              <IconEdit size={16} />
-            </button>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <IconStarFilled size={16} className="text-amber-400" />
-          <span className="text-xs font-bold text-slate-400">{rating} Rating</span>
-        </div>
-        <div className="relative">
-          <p className="text-sm text-slate-500 italic">
-            {data?.about?.bio || data?.description || "No biography available"}
-          </p>
-          {isOwner && (
-            <button
-              onClick={onEditAbout}
-              className="absolute -top-2 -right-2 p-1 rounded-full hover:bg-slate-100 text-slate-400"
-            >
-              <IconEdit size={14} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="p-1 bg-white rounded-[2rem] shadow-sm border">
-        <div className="p-5 space-y-4">
-          <ContactItem
-            icon={<IconMapPin size={18} />}
-            label="Location"
-            value={data?.address}
-            editable={isOwner}
-            onEdit={onEditBasicInfo}
-          />
-          <ContactItem
-            icon={<IconPhone size={18} />}
-            label="Phone"
-            value={data?.phone || data?.phone_number}
-            editable={isOwner}
-            onEdit={onEditBasicInfo}
-          />
-          <ContactItem
-            icon={<IconMail size={18} />}
-            label="Email"
-            value={data?.email}
-            editable={isOwner}
-            onEdit={onEditBasicInfo}
-          />
-        </div>
-      </div>
-    </>
-  );
-}
-
-// Reusable ContactItem (moved from original)
-function ContactItem({ icon, label, value, editable, onEdit }: any) {
-  return (
-    <div className="flex items-center gap-4 group relative">
-      <div className="size-10 rounded-2xl bg-slate-50 flex items-center justify-center text-[#00B0D0] group-hover:bg-[#00B0D0] group-hover:text-white transition-all">
-        {icon}
-      </div>
-      <div className="flex-1">
-        <p className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">{label}</p>
-        <p className="text-sm font-bold text-slate-700">{value || "N/A"}</p>
-      </div>
-      {editable && (
-        <button
-          onClick={onEdit}
-          className="absolute right-0 p-1 rounded-full hover:bg-slate-100 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <IconEdit size={14} />
-        </button>
-      )}
-    </div>
+    </header>
   );
 }

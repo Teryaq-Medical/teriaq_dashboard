@@ -1,10 +1,11 @@
+// components/profile/tabs/TeamTab.tsx
+
 import React, { useState } from "react";
 import Link from "next/link";
-import { IconSearch, IconUsers, IconStethoscope, IconPlus, IconTrash, IconUserCircle, IconUserOff } from "@tabler/icons-react";
+import { IconSearch, IconUsers, IconStethoscope, IconPlus, IconTrash, IconUserOff } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getImageUrl } from "@/lib/image";
 
 interface TeamTabProps {
   data: any;
@@ -33,7 +34,6 @@ export default function TeamTab({
 }: TeamTabProps) {
   const [showOnlyRegistered, setShowOnlyRegistered] = useState<"all" | "registered" | "unregistered">("all");
 
-  // Separate registered and unregistered doctors
   const registeredDoctors = filteredTeam.filter((asgn: any) => asgn.doctor !== null);
   const unregisteredDoctors = filteredTeam.filter((asgn: any) => asgn.unregistered_doctor !== null);
 
@@ -88,7 +88,6 @@ export default function TeamTab({
         </div>
       </div>
 
-      {/* Doctor type filter tabs */}
       <div className="flex gap-2 px-2 border-b border-slate-100">
         <button
           onClick={() => setShowOnlyRegistered("all")}
@@ -137,9 +136,8 @@ export default function TeamTab({
             const doctor = isRegistered ? asgn.doctor : asgn.unregistered_doctor;
             const doctorName = doctor?.full_name || "Unknown Doctor";
             const specialty = doctor?.specialist?.name || "General Specialist";
-            const profileImage = isRegistered 
-              ? getImageUrl(doctor?.profile_image, "doctor")
-              : doctor?.profile_image || "/placeholders/default-doctor.png";
+            // ✅ Use doctor.profile_image directly (now a string URL)
+            const profileImage = doctor?.profile_image || "/placeholders/default-doctor.png";
             const status = asgn.status;
             const isPending = status === "pending";
             

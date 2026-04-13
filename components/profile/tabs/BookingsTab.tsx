@@ -1,4 +1,6 @@
-import React from "react";
+// components/profile/tabs/BookingsTab.tsx
+
+import React, { useState } from "react";
 import {
   IconCircleCheck,
   IconActivity,
@@ -8,9 +10,17 @@ import {
   IconCalendar,
   IconClock,
   IconClipboardList,
+  IconCheck,
 } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface BookingsTabProps {
   stats: any;
@@ -19,6 +29,9 @@ interface BookingsTabProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   filteredBookings: any[];
+  isOwner: boolean;
+  onConfirmAppointment: (appointmentId: string) => Promise<void>;
+  onCompleteAppointment: (appointmentId: string, bookingCode: string) => Promise<void>;
 }
 
 export default function BookingsTab({
@@ -28,10 +41,57 @@ export default function BookingsTab({
   searchQuery,
   setSearchQuery,
   filteredBookings,
+  isOwner,
+  onConfirmAppointment,
+  onCompleteAppointment,
 }: BookingsTabProps) {
+  const [completingId, setCompletingId] = useState<string | null>(null);
+  const [codeInput, setCodeInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleConfirm = async (id: string) => {
+    if (window.confirm("Confirm this appointment?")) {
+      await onConfirmAppointment(id);
+    }
+  };
+
+  const handleComplete = async (id: string) => {
+    if (!codeInput.trim()) {
+      alert("Please enter the booking code provided by the patient.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await onCompleteAppointment(id, codeInput.trim());
+      setCompletingId(null);
+      setCodeInput("");
+    } catch (error) {
+      alert("Invalid booking code or failed to complete.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
+      {/* Grid of stat cards (original styling) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* "All Bookings" button as first card */}
+        <button
+          onClick={() => setActiveFilter("all")}
+          className={`p-6 rounded-[2rem] flex flex-col items-center text-center space-y-2 transition-all duration-300 border-2 w-full ${
+            activeFilter === "all"
+              ? "bg-[#00B0D0] text-white shadow-md border-[#00B0D0]"
+              : "bg-white text-slate-500 border-slate-200 hover:border-[#00B0D0]"
+          }`}
+        >
+          <div className="size-10 bg-white/20 rounded-2xl flex items-center justify-center">
+            <IconClipboardList size={20} className={activeFilter === "all" ? "text-white" : "text-[#00B0D0]"} />
+          </div>
+          <p className="text-2xl font-black">{stats.total || 0}</p>
+          <p className="text-[10px] font-bold uppercase tracking-tighter">All Bookings</p>
+        </button>
+
         <BookingStat
           icon={<IconCircleCheck className="text-green-500" />}
           label="Confirmed"
@@ -123,14 +183,18 @@ export default function BookingsTab({
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="text-right hidden sm:block">
-                  <p className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">
-                    Code
-                  </p>
-                  <p className="text-xs font-mono font-bold text-[#00B0D0]">
-                    {booking.booking_code}
-                  </p>
-                </div>
+                {/* Booking code - hidden from owner */}
+                {!isOwner && (
+                  <div className="text-right hidden sm:block">
+                    <p className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">
+                      Code
+                    </p>
+                    <p className="text-xs font-mono font-bold text-[#00B0D0]">
+                      {booking.booking_code}
+                    </p>
+                  </div>
+                )}
+
                 <Badge
                   className={`rounded-full px-4 py-1 text-[10px] font-black uppercase border-none shadow-sm ${
                     booking.status === "completed"
@@ -144,6 +208,28 @@ export default function BookingsTab({
                 >
                   {booking.status}
                 </Badge>
+
+                {/* Owner actions */}
+                {isOwner && booking.status === "pending" && (
+                  <Button
+                    size="sm"
+                    onClick={() => handleConfirm(booking.id)}
+                    className="rounded-full bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    <IconCheck size={14} className="mr-1" /> Confirm
+                  </Button>
+                )}
+
+                {isOwner && booking.status === "confirmed" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setCompletingId(booking.id)}
+                    className="rounded-full border-amber-400 text-amber-600 hover:bg-amber-50"
+                  >
+                    Complete
+                  </Button>
+                )}
               </div>
             </div>
           ))
@@ -156,10 +242,42 @@ export default function BookingsTab({
           </div>
         )}
       </div>
+
+      {/* Complete Appointment Modal */}
+      <Dialog open={!!completingId} onOpenChange={() => setCompletingId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Complete Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600">
+              Please enter the booking code provided by the patient to mark this appointment as completed.
+            </p>
+            <Input
+              placeholder="Enter booking code"
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value)}
+            />
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setCompletingId(null)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => completingId && handleComplete(completingId)}
+                disabled={loading}
+                className="bg-[#00B0D0]"
+              >
+                {loading ? "Processing..." : "Complete"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
 
+// Original BookingStat component (unchanged)
 function BookingStat({ icon, label, value, color, isActive, onClick }: any) {
   return (
     <button

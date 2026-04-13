@@ -9,6 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { IconPlus, IconTrash, IconInfoCircle } from "@tabler/icons-react";
+
+interface Schedule {
+  day: string;
+  start_time: string;
+  end_time: string;
+}
 
 interface AddDoctorModalProps {
   open: boolean;
@@ -23,8 +30,10 @@ export default function AddDoctorModal({
 }: AddDoctorModalProps) {
   const [doctorType, setDoctorType] = useState<"registered" | "unregistered">("registered");
   const [registeredDoctorId, setRegisteredDoctorId] = useState("");
+  const [schedules, setSchedules] = useState<Schedule[]>([
+    { day: "", start_time: "", end_time: "" }
+  ]);
   
-  // Unregistered doctor form state
   const [unregisteredData, setUnregisteredData] = useState({
     full_name: "",
     specialist_name: "",
@@ -36,6 +45,13 @@ export default function AddDoctorModal({
   });
   
   const [loading, setLoading] = useState(false);
+
+  const days = [
+    { value: "mon", label: "Monday" }, { value: "tue", label: "Tuesday" },
+    { value: "wed", label: "Wednesday" }, { value: "thu", label: "Thursday" },
+    { value: "fri", label: "Friday" }, { value: "sat", label: "Saturday" },
+    { value: "sun", label: "Sunday" },
+  ];
 
   const handleFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -54,188 +70,201 @@ export default function AddDoctorModal({
     }
   };
 
+  const addSchedule = () => setSchedules([...schedules, { day: "", start_time: "", end_time: "" }]);
+  const removeSchedule = (index: number) => {
+    const newSchedules = [...schedules];
+    newSchedules.splice(index, 1);
+    setSchedules(newSchedules);
+  };
+  const updateSchedule = (index: number, field: keyof Schedule, value: string) => {
+    const newSchedules = [...schedules];
+    newSchedules[index][field] = value;
+    setSchedules(newSchedules);
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      const validSchedules = schedules.filter(s => s.day && s.start_time && s.end_time);
       if (doctorType === "registered") {
-        if (!registeredDoctorId) {
-          alert("Please enter doctor ID");
-          return;
-        }
-        const payload = {
-          doctor_type: "registered",
-          doctor_id: parseInt(registeredDoctorId), // Ensure it's a number
-        };
-        console.log("📤 Submitting registered doctor:", payload);
-        await onAdd(payload);
+        if (!registeredDoctorId) { alert("Please enter doctor ID"); return; }
+        await onAdd({ doctor_type: "registered", doctor_id: parseInt(registeredDoctorId), schedules: validSchedules });
       } else {
-        // Validate unregistered doctor form
-        if (!unregisteredData.full_name || !unregisteredData.specialist_name || 
-            !unregisteredData.phone_number || !unregisteredData.address || 
-            !unregisteredData.license_number) {
-          alert("Please fill all required fields");
-          return;
+        if (!unregisteredData.full_name || !unregisteredData.specialist_name || !unregisteredData.phone_number) {
+          alert("Please fill required fields"); return;
         }
-        
-        const payload = {
-          doctor_type: "unregistered",
-          full_name: unregisteredData.full_name,
-          specialist_name: unregisteredData.specialist_name,
-          phone_number: unregisteredData.phone_number,
-          address: unregisteredData.address,
-          license_number: unregisteredData.license_number,
-          profile_image: unregisteredData.profile_image || "",
-          license_document: unregisteredData.license_document || "",
-        };
-        console.log("📤 Submitting unregistered doctor:", payload);
-        await onAdd(payload);
+        await onAdd({ ...unregisteredData, doctor_type: "unregistered", schedules: validSchedules });
       }
       onOpenChange(false);
-      // Reset form
-      setRegisteredDoctorId("");
-      setUnregisteredData({
-        full_name: "",
-        specialist_name: "",
-        phone_number: "",
-        address: "",
-        license_number: "",
-        profile_image: "",
-        license_document: "",
-      });
-    } catch (error: any) {
-      console.error("Error adding doctor:", error);
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Failed to add doctor. Please try again.";
-      alert(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+      setSchedules([{ day: "", start_time: "", end_time: "" }]);
+    } catch (error) { console.error(error); } finally { setLoading(false); }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden scrollbar-hide bg-white rounded-[2.5rem] border-none shadow-2xl p-8">
         <DialogHeader>
-          <DialogTitle>Add Doctor to Team</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-black">Add Doctor to Team</DialogTitle>
         </DialogHeader>
         
-        <Tabs value={doctorType} onValueChange={(v) => setDoctorType(v as any)} className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="registered">Registered Doctor</TabsTrigger>
-            <TabsTrigger value="unregistered">Add New Doctor</TabsTrigger>
+        <Tabs value={doctorType} onValueChange={(v) => setDoctorType(v as any)} className="mt-6">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-2xl h-14">
+            <TabsTrigger 
+              value="registered" 
+              className="rounded-xl h-full data-[state=active]:bg-[#00B0D0] data-[state=active]:shadow-sm data-[state=active]:text-black text-sm font-semibold text-black hover:text-white transition-all"
+            >
+              Registered Doctor
+            </TabsTrigger>
+            <TabsTrigger 
+              value="unregistered" 
+              className="rounded-xl h-full data-[state=active]:bg-[#00B0D0] data-[state=active]:shadow-sm data-[state=active]:text-white text-sm font-semibold text-black hover:text-black transition-all"
+            >
+              Add New Doctor
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="registered" className="space-y-4 mt-4">
-            <div>
-              <Label htmlFor="doctor_id">Doctor ID *</Label>
+          <TabsContent value="registered" className="space-y-4 mt-8">
+            <div className="space-y-2">
+              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Doctor ID *</Label>
               <Input
-                id="doctor_id"
                 type="number"
-                placeholder="Enter existing doctor ID"
+                placeholder="Enter professional ID"
                 value={registeredDoctorId}
                 onChange={(e) => setRegisteredDoctorId(e.target.value)}
-                className="mt-1"
+                className="rounded-2xl border-slate-200 h-12 bg-slate-50/50 placeholder:text-black text-black"
               />
-              <p className="text-xs text-slate-500 mt-1">
-                Enter the ID of a doctor already registered in the system
-              </p>
             </div>
           </TabsContent>
           
-          <TabsContent value="unregistered" className="space-y-4 mt-4">
-            <div>
-              <Label htmlFor="full_name">Full Name *</Label>
+          <TabsContent value="unregistered" className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
+            <div className="space-y-2">
+              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Full Name *</Label>
               <Input
-                id="full_name"
                 placeholder="Doctor's full name"
                 value={unregisteredData.full_name}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, full_name: e.target.value })}
-                className="mt-1"
+                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
               />
             </div>
-            
-            <div>
-              <Label htmlFor="specialist_name">Specialization *</Label>
+            <div className="space-y-2">
+              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Specialization *</Label>
               <Input
-                id="specialist_name"
-                placeholder="e.g., Cardiologist, Neurologist"
+                placeholder="e.g. Cardiologist"
                 value={unregisteredData.specialist_name}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, specialist_name: e.target.value })}
-                className="mt-1"
+                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
               />
             </div>
-            
-            <div>
-              <Label htmlFor="phone_number">Phone Number *</Label>
+            <div className="space-y-2 md:col-span-2">
+              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Address *</Label>
               <Input
-                id="phone_number"
-                placeholder="Doctor's phone number"
-                value={unregisteredData.phone_number}
-                onChange={(e) => setUnregisteredData({ ...unregisteredData, phone_number: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="address">Address *</Label>
-              <Input
-                id="address"
                 placeholder="Clinic/Hospital address"
                 value={unregisteredData.address}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, address: e.target.value })}
-                className="mt-1"
+                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
               />
             </div>
-            
-            <div>
-              <Label htmlFor="license_number">License Number *</Label>
+            <div className="space-y-2">
+              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Phone Number</Label>
               <Input
-                id="license_number"
-                placeholder="Medical license number"
+                placeholder="Contact number"
+                value={unregisteredData.phone_number}
+                onChange={(e) => setUnregisteredData({ ...unregisteredData, phone_number: e.target.value })}
+                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">License Number</Label>
+              <Input
+                placeholder="Medical license"
                 value={unregisteredData.license_number}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, license_number: e.target.value })}
-                className="mt-1"
+                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
               />
             </div>
-            
-            <div>
-              <Label htmlFor="profile_image">Profile Image</Label>
+            <div className="space-y-2">
+              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Profile Image</Label>
               <Input
-                id="profile_image"
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, "profile_image")}
-                className="mt-1"
+                className="rounded-2xl border-slate-200 bg-slate-50/50 text-black"
               />
               {unregisteredData.profile_image && (
-                <img src={unregisteredData.profile_image} alt="Preview" className="mt-2 w-20 h-20 object-cover rounded" />
+                <img src={unregisteredData.profile_image} alt="Preview" className="mt-2 w-20 h-20 object-cover rounded-xl" />
               )}
             </div>
-            
-            <div>
-              <Label htmlFor="license_document">License Document</Label>
+            <div className="space-y-2">
+              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">License Document</Label>
               <Input
-                id="license_document"
                 type="file"
                 accept="image/*,.pdf"
                 onChange={(e) => handleImageUpload(e, "license_document")}
-                className="mt-1"
+                className="rounded-2xl border-slate-200 bg-slate-50/50 text-black"
               />
             </div>
-            
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="text-xs text-blue-700">
-                ℹ️ This doctor will be added as unregistered and will require admin approval before they can receive online bookings.
+            <div className="col-span-full bg-cyan-50/50 p-4 rounded-2xl flex gap-3 items-center border border-cyan-100/50 mt-2">
+              <IconInfoCircle className="text-black" size={20} />
+              <p className="text-xs text-black font-medium italic">
+                This professional will require verification before going live.
               </p>
             </div>
           </TabsContent>
         </Tabs>
-        
-        <div className="flex justify-end gap-3 mt-6">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+
+        <div className="mt-10">
+          <Label className="text-lg font-bold text-black block mb-4">Working Schedules</Label>
+          {schedules.map((schedule, index) => (
+            <div key={index} className="mb-4 p-5 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] relative">
+              {schedules.length > 1 && (
+                <button onClick={() => removeSchedule(index)} className="absolute top-4 right-4 text-black hover:text-red-600 transition-colors">
+                  <IconTrash size={18} className="text-black" />
+                </button>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-black">Day</Label>
+                  <select
+                    value={schedule.day}
+                    onChange={(e) => updateSchedule(index, "day", e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#00B0D0]/20 outline-none h-11 text-sm text-black"
+                  >
+                    <option value="" className="text-black">Select day</option>
+                    {days.map(day => <option key={day.value} value={day.value} className="text-black">{day.label}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-black">Start</Label>
+                  <Input 
+                    type="time" 
+                    value={schedule.start_time} 
+                    onChange={(e) => updateSchedule(index, "start_time", e.target.value)} 
+                    className="bg-white rounded-xl h-11 text-black"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-black">End</Label>
+                  <Input 
+                    type="time" 
+                    value={schedule.end_time} 
+                    onChange={(e) => updateSchedule(index, "end_time", e.target.value)} 
+                    className="bg-white rounded-xl h-11 text-black"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          <Button variant="outline" onClick={addSchedule} className="w-full border-dashed border-2 rounded-2xl py-7 text-black hover:text-[#00B0D0] hover:border-[#00B0D0] bg-white transition-colors">
+            <IconPlus size={20} className="mr-2 text-black" /> Add Another Shift
+          </Button>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-10">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl px-8 h-12 text-black font-bold hover:text-slate-700">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={loading} className="bg-[#00B0D0]">
-            {loading ? "Adding..." : "Add Doctor"}
+          <Button onClick={handleSubmit} disabled={loading} className="bg-[#00B0D0] hover:bg-[#0096b0] rounded-xl px-10 h-12 font-bold shadow-lg shadow-cyan-100 text-white">
+            {loading ? "Adding..." : "Confirm & Save"}
           </Button>
         </div>
       </DialogContent>

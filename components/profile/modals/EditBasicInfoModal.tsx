@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,37 @@ export default function EditBasicInfoModal({
   data,
   onSave,
 }: EditBasicInfoModalProps) {
+  const [imagePreview, setImagePreview] = useState<string>(data.image || data.profile_image || "");
+  const [imageBase64, setImageBase64] = useState<string>("");
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        setImagePreview(base64);
+        setImageBase64(base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async () => {
+    const updated: any = {
+      name: (document.getElementById("name") as HTMLInputElement).value,
+      address: (document.getElementById("address") as HTMLInputElement).value,
+      phone: (document.getElementById("phone") as HTMLInputElement).value,
+      email: (document.getElementById("email") as HTMLInputElement).value,
+    };
+    if (imageBase64) {
+      updated.image = imageBase64;       // for hospitals/clinics/labs
+      updated.profile_image = imageBase64; // for doctors (both sent, backend picks correct one)
+    }
+    await onSave(updated);
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white rounded-[2.5rem] border-none shadow-2xl p-10 max-w-lg">
@@ -31,6 +62,22 @@ export default function EditBasicInfoModal({
           <DialogTitle className="text-2xl font-bold text-slate-900">Basic Information</DialogTitle>
         </DialogHeader>
         <div className="space-y-6 mt-8">
+          {/* Image Upload Section */}
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Profile Image</Label>
+            <div className="flex items-center gap-4">
+              {imagePreview && (
+                <img src={imagePreview} alt="Preview" className="w-16 h-16 rounded-2xl object-cover border border-slate-200" />
+              )}
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="flex-1 rounded-2xl border-slate-200 bg-slate-50/50"
+              />
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Full Display Name</Label>
             <Input defaultValue={displayName} id="name" className="rounded-2xl border-slate-200 h-12 bg-slate-50/50 focus:ring-[#00B0D0]" />
@@ -50,16 +97,7 @@ export default function EditBasicInfoModal({
             </div>
           </div>
           <Button
-            onClick={async () => {
-              const updated = {
-                name: (document.getElementById("name") as HTMLInputElement).value,
-                address: (document.getElementById("address") as HTMLInputElement).value,
-                phone: (document.getElementById("phone") as HTMLInputElement).value,
-                email: (document.getElementById("email") as HTMLInputElement).value,
-              };
-              await onSave(updated);
-              onOpenChange(false);
-            }}
+            onClick={handleSave}
             className="w-full bg-[#00B0D0] hover:bg-[#0096b0] h-14 rounded-2xl font-bold text-lg shadow-xl shadow-cyan-100 mt-4 transition-all"
           >
             Save Profile Data

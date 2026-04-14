@@ -20,8 +20,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       { title: "Dashboard", url: "/dashboard", icon: IconDashboard },
       { title: "All Clinics", url: "/entities/clincs", icon: IconFolder },
       { title: "All Hospitals", url: "/entities/hospitals", icon: IconFolder },
+      { title: "All Labs", url: "/entities/labs", icon: IconFolder },        // ✅ Added
       { title: "All Doctors", url: "/entities/doctors", icon: IconUsers },
-      { title: "Unregistered Doctors", url: "/entities/un-doctors", icon: IconUserPlus }, // ✅ added
+      { title: "Unregistered Doctors", url: "/entities/un-doctors", icon: IconUserPlus },
       { title: "Lifecycle", url: "/lifecycle", icon: IconListDetails },
     ];
   } else if (user.user_type === "hospitals" || user.user_type === "clincs") {

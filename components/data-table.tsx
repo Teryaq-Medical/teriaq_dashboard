@@ -122,9 +122,6 @@ function DraggableRow({ row }: { row: Row<any> }) {
 }
 
 export function DataTable({ data: initialData, entityType, onDelete, onRefresh, isAdmin }: DataTableProps) {
-  // ✅ Treat both 'doctors' and 'un-doctors' as doctor type
-  const isDoctor = entityType === "doctors" || entityType === "un-doctors";
-  
   const safeInitialData = React.useMemo(() => (Array.isArray(initialData) ? initialData : []), [initialData]);
   const [data, setData] = React.useState(safeInitialData);
   const [editModalOpen, setEditModalOpen] = React.useState(false);
@@ -151,6 +148,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
 
   const openEditModal = (entity: any) => {
     setEditingEntity(entity);
+    const isDoctor = entityType === "doctors";
     setEditForm({
       name: isDoctor ? entity.full_name : entity.name,
       address: entity.address || "",
@@ -166,6 +164,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
     if (!editingEntity) return;
     setSubmitting(true);
     try {
+      const isDoctor = entityType === "doctors";
       const payload: any = {
         name: editForm.name,
         address: editForm.address,
@@ -206,6 +205,8 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
   };
 
   const columns = React.useMemo<ColumnDef<any>[]>(() => {
+    const isDoctor = entityType === "doctors";
+
     const baseColumns: ColumnDef<any>[] = [
       {
         id: "drag",
@@ -287,12 +288,12 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
               </Badge>
             );
           }
+          // For labs, clinics, hospitals – show rating
+          const rating = row.original.rating || "0.0";
           return (
             <div className="flex items-center gap-1.5 bg-slate-50 w-fit px-2 py-1 rounded-lg border border-slate-100">
               <IconStarFilled className="size-3 text-amber-400" />
-              <span className="text-xs font-bold text-slate-700">
-                {row.original.rating || "0.0"}
-              </span>
+              <span className="text-xs font-bold text-slate-700">{rating}</span>
             </div>
           );
         },
@@ -335,7 +336,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
     };
 
     return [...baseColumns, actionsColumn];
-  }, [entityType, isAdmin, onDelete, isDoctor]);
+  }, [entityType, isAdmin, onDelete]);
 
   const table = useReactTable({
     data,
@@ -359,6 +360,8 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
       });
     }
   }
+
+  const isDoctor = entityType === "doctors";
 
   return (
     <>

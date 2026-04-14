@@ -5,8 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { AuthService } from "@/services/auth.service";
 import { Entities } from "@/services/api.services";
 import { getImageUrl } from "@/lib/image";
+import api from "@/services/api";
+import { toast } from "sonner";
 
-// Import all new components
+// Import components
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileSidebar from "@/components/profile/ProfileSidebar";
 import ProfileStats from "@/components/profile/ProfileStats";
@@ -27,7 +29,10 @@ export default function UltraModernEntityProfile() {
   const id = params?.id as string;
 
   const [data, setData] = useState<any>(null);
+  const [labBookings, setLabBookings] = useState<any[]>([]);
+  const [doctorAssignments, setDoctorAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [schedulesLoading, setSchedulesLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [teamSearchQuery, setTeamSearchQuery] = useState("");
@@ -47,6 +52,17 @@ export default function UltraModernEntityProfile() {
   const [newCertificate, setNewCertificate] = useState({ name: "", entity: "" });
   const [newSchedule, setNewSchedule] = useState({ day: "", start_time: "", end_time: "" });
 
+  // Timeout to prevent infinite loading
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        setLoading(false);
+        toast.error("Loading took too long. Please refresh.");
+      }
+    }, 15000);
+    return () => clearTimeout(timeoutId);
+  }, [loading]);
+
   const normalizeEntityType = (type: string): string => {
     if (!type) return "";
     return type.endsWith('s') ? type.slice(0, -1) : type;
@@ -58,7 +74,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to update doctor specialist:", error);
-      alert("Failed to update specialization");
+      toast.error("Failed to update specialization");
     }
   };
 
@@ -68,7 +84,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to confirm appointment:", error);
-      alert("Could not confirm appointment.");
+      toast.error("Could not confirm appointment.");
     }
   };
 
@@ -78,7 +94,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to complete appointment:", error);
-      alert("Invalid booking code or failed to complete.");
+      toast.error("Invalid booking code or failed to complete.");
     }
   };
 
@@ -91,11 +107,38 @@ export default function UltraModernEntityProfile() {
         setData(result);
       } catch (err) {
         console.error("Failed to fetch entity:", err);
+        toast.error("Failed to load profile data.");
       } finally {
         setLoading(false);
       }
     };
     fetchDetail();
+  }, [entityType, id, refreshTrigger]);
+
+  // Fetch lab bookings (only for labs)
+  useEffect(() => {
+    if (entityType === "labs" && id) {
+      api.get(`/lab-bookings/?lab=${id}`)
+        .then(res => {
+          const bookings = Array.isArray(res.data) ? res.data : res.data?.results || [];
+          setLabBookings(bookings);
+        })
+        .catch(err => console.error("Failed to fetch lab bookings", err));
+    }
+  }, [entityType, id, refreshTrigger]);
+
+  // Fetch doctor assignments (only for doctors) – contains schedules grouped by entity_type
+  useEffect(() => {
+    if (entityType === "doctors" && id) {
+      setSchedulesLoading(true);
+      api.get(`/doctor-assignments/?doctor_id=${id}`)
+        .then(res => {
+          const assignmentsData = res.data?.data || res.data || [];
+          setDoctorAssignments(assignmentsData);
+        })
+        .catch(err => console.error("Failed to fetch doctor assignments", err))
+        .finally(() => setSchedulesLoading(false));
+    }
   }, [entityType, id, refreshTrigger]);
 
   // Fetch current user and check ownership
@@ -149,7 +192,7 @@ export default function UltraModernEntityProfile() {
       setEditBasicInfoOpen(false);
     } catch (error) {
       console.error("Failed to update basic info:", error);
-      alert("Failed to update basic information. Please try again.");
+      toast.error("Failed to update basic information.");
     }
   };
 
@@ -161,7 +204,7 @@ export default function UltraModernEntityProfile() {
       setEditAboutOpen(false);
     } catch (error) {
       console.error("Failed to update about:", error);
-      alert("Failed to update about information. Please try again.");
+      toast.error("Failed to update about information.");
     }
   };
 
@@ -176,8 +219,7 @@ export default function UltraModernEntityProfile() {
       setNewDoctorId("");
     } catch (error: any) {
       console.error("❌ Failed to add doctor:", error);
-      console.error("Error response:", error.response?.data);
-      alert(error.response?.data?.error || "Failed to add doctor. Please try again.");
+      toast.error(error.response?.data?.error || "Failed to add doctor.");
     }
   };
 
@@ -187,7 +229,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to remove doctor:", error);
-      alert("Failed to remove doctor. Please try again.");
+      toast.error("Failed to remove doctor.");
     }
   };
 
@@ -196,25 +238,31 @@ export default function UltraModernEntityProfile() {
     try {
       if (entityType === "doctors") {
         await Entities.updateDoctorSpecialist(id, name);
+      } else if (entityType === "labs") {
+        toast.error("Adding specialists for labs is not yet implemented.");
+        return;
       } else {
         await Entities.addSpecialist(entityType, id, name);
       }
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to add/update specialist:", error);
-      alert("Failed to update specialist. Please try again.");
+      toast.error("Failed to update specialist.");
     }
   };
 
   const removeSpecialist = async (specialistId: string) => {
     try {
-      if (entityType !== "doctors") {
+      if (entityType === "labs") {
+        toast.error("Removing specialists for labs is not yet implemented.");
+        return;
+      } else if (entityType !== "doctors") {
         await Entities.removeSpecialist(entityType, id, specialistId);
-        setRefreshTrigger((prev) => prev + 1);
       }
+      setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to remove specialist:", error);
-      alert("Failed to remove specialist. Please try again.");
+      toast.error("Failed to remove specialist.");
     }
   };
 
@@ -242,7 +290,7 @@ export default function UltraModernEntityProfile() {
       setNewInsurance({ entity: "", status: "عادية" });
     } catch (error: any) {
       console.error("Failed to add insurance:", error);
-      alert(error.response?.data?.details || "Failed to add insurance");
+      toast.error(error.response?.data?.details || "Failed to add insurance");
     }
   };
 
@@ -256,7 +304,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error: any) {
       console.error("Failed to remove insurance:", error);
-      alert(error.response?.data?.error || "Failed to remove insurance");
+      toast.error(error.response?.data?.error || "Failed to remove insurance");
     }
   };
 
@@ -273,7 +321,7 @@ export default function UltraModernEntityProfile() {
       setNewCertificate({ name: "", entity: "" });
     } catch (error) {
       console.error("Failed to add certificate:", error);
-      alert("Failed to add certificate");
+      toast.error("Failed to add certificate");
     }
   };
 
@@ -287,7 +335,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to remove certificate:", error);
-      alert("Failed to remove certificate");
+      toast.error("Failed to remove certificate");
     }
   };
 
@@ -304,7 +352,7 @@ export default function UltraModernEntityProfile() {
       setNewSchedule({ day: "", start_time: "", end_time: "", date: "" });
     } catch (error) {
       console.error("Failed to add schedule:", error);
-      alert("Failed to add schedule");
+      toast.error("Failed to add schedule");
     }
   };
 
@@ -314,7 +362,27 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to remove schedule:", error);
-      alert("Failed to remove schedule");
+      toast.error("Failed to remove schedule");
+    }
+  };
+
+  const confirmLabBooking = async (bookingId: string) => {
+    try {
+      await api.patch(`/lab-bookings/${bookingId}/`, { status: "confirmed" });
+      setRefreshTrigger((prev) => prev + 1);
+    } catch (error) {
+      console.error("Failed to confirm lab booking:", error);
+      toast.error("Could not confirm booking.");
+    }
+  };
+
+  const completeLabBooking = async (bookingId: string, bookingCode: string) => {
+    try {
+      await api.patch(`/lab-bookings/${bookingId}/`, { status: "completed", booking_code: bookingCode });
+      setRefreshTrigger((prev) => prev + 1);
+    } catch (error) {
+      console.error("Failed to complete lab booking:", error);
+      toast.error("Invalid booking code or failed to complete.");
     }
   };
 
@@ -322,16 +390,36 @@ export default function UltraModernEntityProfile() {
   if (!data) return <div className="p-10 text-center text-slate-400 font-bold">Profile data not found.</div>;
 
   const isDoctor = entityType === "doctors";
-  const isMedicalEntity = ["hospitals", "clincs", "labs"].includes(entityType);
+  const isLab = entityType === "labs";
+  const isHospitalOrClinic = ["hospitals", "clincs"].includes(entityType);
   const displayName = data.name || data.full_name || data.user?.full_name || "Unnamed";
   const rating = data.rating ?? data.ratings ?? 0;
-  const stats = data.appointment_stats || { total: 0, confirmed: 0, completed: 0, cancelled: 0, no_show: 0, bookings: [] };
+
+  // Compute lab booking stats
+  const labStats = {
+    total: labBookings.length,
+    confirmed: labBookings.filter(b => b.status === "confirmed").length,
+    completed: labBookings.filter(b => b.status === "completed").length,
+    cancelled: labBookings.filter(b => b.status === "cancelled").length,
+    no_show: 0,
+  };
+
+  const stats = isLab ? labStats : (data.appointment_stats || { total: 0, confirmed: 0, completed: 0, cancelled: 0, no_show: 0, bookings: [] });
   const profileImg = getImageUrl(isDoctor ? data.profile_image : data.image, isDoctor ? "doctor" : "entity");
 
   const filteredBookings = (stats.bookings || []).filter((booking: any) => {
     const matchesStatus = activeFilter === "all" || booking.status === activeFilter;
-    const matchesSearch = booking.booking_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          booking.assignment_display?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (booking.patient_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (booking.assignment_display || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (booking.booking_code || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
+  const labBookingsFiltered = labBookings.filter((booking: any) => {
+    const matchesStatus = activeFilter === "all" || booking.status === activeFilter;
+    const matchesSearch = (booking.patient_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (booking.service_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (booking.booking_code || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -350,9 +438,9 @@ export default function UltraModernEntityProfile() {
     return doc?.specialist?.name;
   }).filter(Boolean)));
 
-  // ✅ Show Bookings tab for owner OR admin/superuser/staff
   const showBookingsTab = isOwner || currentUser?.is_superuser || currentUser?.is_staff || currentUser?.user_type === "admin";
-  console.log("🔍 showBookingsTab:", showBookingsTab, "isOwner:", isOwner, "is_superuser:", currentUser?.is_superuser, "is_staff:", currentUser?.is_staff, "user_type:", currentUser?.user_type);
+  const showTeamTab = isHospitalOrClinic;
+  const showScheduleTab = isDoctor;
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] p-4 lg:p-10">
@@ -370,7 +458,8 @@ export default function UltraModernEntityProfile() {
             <ProfileTabs
               data={data}
               isDoctor={isDoctor}
-              isMedicalEntity={isMedicalEntity}
+              isLab={isLab}
+              showTeamTab={showTeamTab}
               isOwner={isOwner}
               showBookingsTab={showBookingsTab}
               activeFilter={activeFilter}
@@ -382,12 +471,15 @@ export default function UltraModernEntityProfile() {
               teamFilter={teamFilter}
               setTeamFilter={setTeamFilter}
               filteredBookings={filteredBookings}
+              labBookings={labBookingsFiltered}
               filteredTeam={filteredTeam}
               uniqueSpecialties={uniqueSpecialties}
+              doctorAssignments={doctorAssignments}
+              schedulesLoading={schedulesLoading}
               onEditAbout={() => setEditAboutOpen(true)}
               onUpdateDoctorSpecialist={updateDoctorSpecialist}
-              onConfirmAppointment={confirmAppointment}
-              onCompleteAppointment={completeAppointment}
+              onConfirmAppointment={isLab ? confirmLabBooking : confirmAppointment}
+              onCompleteAppointment={isLab ? completeLabBooking : completeAppointment}
               onAddDoctor={() => setAddDoctorOpen(true)}
               onRemoveDoctor={removeDoctor}
               onAddSpecialist={addSpecialist}
@@ -403,7 +495,7 @@ export default function UltraModernEntityProfile() {
         </div>
       </div>
 
-      {/* Modals (unchanged) */}
+      {/* Modals */}
       <EditBasicInfoModal open={editBasicInfoOpen} onOpenChange={setEditBasicInfoOpen} displayName={displayName} data={data} onSave={updateBasicInfo} />
       <EditAboutModal open={editAboutOpen} onOpenChange={setEditAboutOpen} initialAbout={data.about?.bio_details || data.description || ""} onSave={updateAbout} />
       <AddDoctorModal open={addDoctorOpen} onOpenChange={setAddDoctorOpen} onAdd={addDoctor} />

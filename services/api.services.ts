@@ -3,23 +3,22 @@
 import api from "./api";
 
 export const DashboardService = {
+  // Get dashboard stats for the current user
   getStats: async () => {
     const res = await api.get("/dashboard/stats/");
-    return res.data.data || res.data || [];
+    // Backend returns { dashboard: string, data: {...} }
+    return {
+      dashboard: res.data.dashboard,
+      data: res.data.data,
+    };
   },
 
-  getAnalytics: async (range: string) => {
-    const res = await api.get(`/dashboard/analytics/?range=${range}`);
-    return res.data.data || res.data || [];
-  },
-
-  getRecentActivity: async () => {
-    const res = await api.get("/dashboard/recent-activity/");
-    const data = res.data;
-    if (Array.isArray(data)) return data;
-    if (Array.isArray(data?.data)) return data.data;
-    if (Array.isArray(data?.results)) return data.results;
-    return [];
+  // Get chart data for appointments or lab bookings
+  getChartData: async (type: "appointments" | "lab_bookings", range: string) => {
+    const endpoint = type === "appointments" ? "/dashboard/appointments-chart/" : "/dashboard/lab-bookings-chart/";
+    const res = await api.get(`${endpoint}?range=${range}`);
+    // Backend returns { status: "success", data: [{ date, count }] }
+    return res.data.data || [];
   },
 };
 
@@ -195,4 +194,5 @@ export const Entities = {
     const res = await api.patch(`/appointments/${appointmentId}/`, payload);
     return res.data;
   },
+
 };

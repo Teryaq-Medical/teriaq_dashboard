@@ -1,7 +1,5 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Import all tab components
 import OverviewTab from "./tabs/OverviewTab";
 import TeamTab from "./tabs/TeamTab";
 import BookingsTab from "./tabs/BookingsTab";
@@ -14,9 +12,10 @@ import DoctorSpecialistEditor from "./modals/DoctorSpecialistEditor";
 interface ProfileTabsProps {
   data: any;
   isDoctor: boolean;
-  isMedicalEntity: boolean;
+  isLab?: boolean;
+  showTeamTab?: boolean;
   isOwner: boolean;
-  showBookingsTab?: boolean; // ✅ new prop
+  showBookingsTab?: boolean;
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
   searchQuery: string;
@@ -26,8 +25,11 @@ interface ProfileTabsProps {
   teamFilter: string;
   setTeamFilter: (filter: string) => void;
   filteredBookings: any[];
+  labBookings?: any[];
   filteredTeam: any[];
   uniqueSpecialties: string[];
+  doctorAssignments?: any[];
+  schedulesLoading?: boolean;
   onEditAbout: () => void;
   onUpdateDoctorSpecialist?: (name: string) => Promise<void>;
   onAddDoctor: () => void;
@@ -47,9 +49,10 @@ interface ProfileTabsProps {
 export default function ProfileTabs({
   data,
   isDoctor,
-  isMedicalEntity,
+  isLab = false,
+  showTeamTab = false,
   isOwner,
-  showBookingsTab = false, // ✅ default false
+  showBookingsTab = false,
   activeFilter,
   setActiveFilter,
   searchQuery,
@@ -59,8 +62,11 @@ export default function ProfileTabs({
   teamFilter,
   setTeamFilter,
   filteredBookings,
+  labBookings = [],
   filteredTeam,
   uniqueSpecialties,
+  doctorAssignments = [],
+  schedulesLoading = false,
   onEditAbout,
   onUpdateDoctorSpecialist,
   onAddDoctor,
@@ -76,43 +82,32 @@ export default function ProfileTabs({
   onConfirmAppointment,
   onCompleteAppointment,
 }: ProfileTabsProps) {
+  const bookings = isLab ? labBookings : filteredBookings;
+  const labStats = isLab ? {
+    total: labBookings.length,
+    confirmed: labBookings.filter((b: any) => b.status === "confirmed").length,
+    completed: labBookings.filter((b: any) => b.status === "completed").length,
+    cancelled: labBookings.filter((b: any) => b.status === "cancelled").length,
+    no_show: 0,
+  } : data.appointment_stats || {};
+
   return (
     <Tabs defaultValue="overview">
       <TabsList className="bg-transparent border-b w-full justify-start gap-6 h-12 overflow-x-auto no-scrollbar">
-        <TabsTrigger value="overview" className="modern-tab">
-          Overview
-        </TabsTrigger>
-        {isMedicalEntity && (
-          <TabsTrigger value="team" className="modern-tab">
-            Team
-          </TabsTrigger>
-        )}
-        {showBookingsTab && ( // ✅ Conditionally show Bookings tab
-          <TabsTrigger value="bookings" className="modern-tab">
-            Bookings
-          </TabsTrigger>
-        )}
-        <TabsTrigger value="specialists" className="modern-tab">
-          Specialists
-        </TabsTrigger>
-        {isDoctor && (
-          <TabsTrigger value="schedule" className="modern-tab">
-            Schedule
-          </TabsTrigger>
-        )}
-        <TabsTrigger value="insurance" className="modern-tab">
-          Insurance
-        </TabsTrigger>
-        <TabsTrigger value="certs" className="modern-tab">
-          Certificates
-        </TabsTrigger>
+        <TabsTrigger value="overview" className="modern-tab">Overview</TabsTrigger>
+        {showTeamTab && <TabsTrigger value="team" className="modern-tab">Team</TabsTrigger>}
+        {showBookingsTab && <TabsTrigger value="bookings" className="modern-tab">Bookings</TabsTrigger>}
+        <TabsTrigger value="specialists" className="modern-tab">Specialists</TabsTrigger>
+        {isDoctor && <TabsTrigger value="schedule" className="modern-tab">Schedule</TabsTrigger>}
+        <TabsTrigger value="insurance" className="modern-tab">Insurance</TabsTrigger>
+        <TabsTrigger value="certs" className="modern-tab">Certificates</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="pt-8">
         <OverviewTab data={data} isOwner={isOwner} onEditAbout={onEditAbout} />
       </TabsContent>
 
-      {isMedicalEntity && (
+      {showTeamTab && (
         <TabsContent value="team" className="pt-8">
           <TeamTab
             data={data}
@@ -129,18 +124,19 @@ export default function ProfileTabs({
         </TabsContent>
       )}
 
-      {showBookingsTab && ( // ✅ Conditionally render Bookings content
+      {showBookingsTab && (
         <TabsContent value="bookings" className="pt-8">
           <BookingsTab
-            stats={data.appointment_stats || {}}
+            stats={labStats}
             activeFilter={activeFilter}
             setActiveFilter={setActiveFilter}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            filteredBookings={filteredBookings}
+            filteredBookings={bookings}
             isOwner={isOwner}
             onConfirmAppointment={onConfirmAppointment || (() => Promise.resolve())}
             onCompleteAppointment={onCompleteAppointment || (() => Promise.resolve())}
+            isLab={isLab}
           />
         </TabsContent>
       )}
@@ -164,12 +160,18 @@ export default function ProfileTabs({
 
       {isDoctor && (
         <TabsContent value="schedule" className="pt-8">
-          <ScheduleTab
-            assignments={data.assignments || []}
-            isOwner={isOwner}
-            onAddSchedule={onAddSchedule}
-            onRemoveSchedule={onRemoveSchedule}
-          />
+          {schedulesLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="w-8 h-8 border-4 border-[#00B0D0] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <ScheduleTab
+              assignments={doctorAssignments}
+              isOwner={isOwner}
+              onAddSchedule={onAddSchedule}
+              onRemoveSchedule={onRemoveSchedule}
+            />
+          )}
         </TabsContent>
       )}
 

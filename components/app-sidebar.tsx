@@ -7,12 +7,18 @@ import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
 import { IconDashboard, IconFolder, IconUsers, IconListDetails, IconUserPlus } from "@tabler/icons-react";
 
+type NavItem = {
+  title: string;
+  url: string;
+  icon: any;
+};
+
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user } = useUser();
 
   if (!user) return null;
 
-  let navItems = [];
+  let navItems: NavItem[] = [];
 
   // Admin / superuser sees everything
   if (user.is_superuser || user.user_type === "admin") {
@@ -20,7 +26,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       { title: "Dashboard", url: "/dashboard", icon: IconDashboard },
       { title: "All Clinics", url: "/entities/clincs", icon: IconFolder },
       { title: "All Hospitals", url: "/entities/hospitals", icon: IconFolder },
-      { title: "All Labs", url: "/entities/labs", icon: IconFolder },        // ✅ Added
+      { title: "All Labs", url: "/entities/labs", icon: IconFolder },
       { title: "All Doctors", url: "/entities/doctors", icon: IconUsers },
       { title: "Unregistered Doctors", url: "/entities/un-doctors", icon: IconUserPlus },
       { title: "Lifecycle", url: "/lifecycle", icon: IconListDetails },
@@ -54,7 +60,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           user={{
             name: user.full_name,
             email: user.email,
-            avatar: user.avatar || "/avatars/default.jpg",
+            avatar: "/avatars/default.jpg",
           }}
         />
       </SidebarFooter>

@@ -50,7 +50,7 @@ export default function UltraModernEntityProfile() {
   const [newDoctorId, setNewDoctorId] = useState("");
   const [newInsurance, setNewInsurance] = useState({ entity: "", status: "عادية" });
   const [newCertificate, setNewCertificate] = useState({ name: "", entity: "" });
-  const [newSchedule, setNewSchedule] = useState({ day: "", start_time: "", end_time: "" });
+  const [newSchedule, setNewSchedule] = useState({ day: "", start_time: "", end_time: "", date: "" });
 
   // Timeout to prevent infinite loading
   useEffect(() => {
@@ -433,10 +433,17 @@ export default function UltraModernEntityProfile() {
     return matchesSearch && matchesType;
   });
 
-  const uniqueSpecialties = Array.from(new Set((data.assignments || []).map((a: any) => {
-    const doc = a.doctor || a.unregistered_doctor;
-    return doc?.specialist?.name;
-  }).filter(Boolean)));
+  // ✅ Fixed: Cast to string[]
+  const uniqueSpecialties = Array.from(
+    new Set(
+      (data.assignments || [])
+        .map((a: any) => {
+          const doc = a.doctor || a.unregistered_doctor;
+          return doc?.specialist?.name;
+        })
+        .filter(Boolean)
+    )
+  ) as string[];
 
   const showBookingsTab = isOwner || currentUser?.is_superuser || currentUser?.is_staff || currentUser?.user_type === "admin";
   const showTeamTab = isHospitalOrClinic;

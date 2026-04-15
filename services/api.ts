@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const is_production = true
+const is_production = false
 
 const api = axios.create({
     baseURL: is_production ? "https://teriaq-medical-be.onrender.com/api" : "http://localhost:8000/api",

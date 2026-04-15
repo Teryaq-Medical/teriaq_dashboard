@@ -1,4 +1,3 @@
-// components/data-table.tsx
 "use client";
 
 import * as React from "react";
@@ -86,7 +85,7 @@ function DragHandle({ id }: { id: number | string }) {
       {...listeners}
       variant="ghost"
       size="icon"
-      className="text-muted-foreground size-7 hover:bg-transparent cursor-grab active:cursor-grabbing"
+      className="text-muted-foreground size-7 hover:bg-accent cursor-grab active:cursor-grabbing"
     >
       <IconGripVertical className="size-4" />
     </Button>
@@ -110,10 +109,10 @@ function DraggableRow({ row }: { row: Row<any> }) {
       ref={setNodeRef}
       style={style}
       data-state={row.getIsSelected() && "selected"}
-      className={isDragging ? "opacity-50 bg-muted/50" : ""}
+      className={isDragging ? "opacity-50 bg-muted/50" : "bg-card hover:bg-muted/50 transition-colors"}
     >
       {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>
+        <TableCell key={cell.id} className="border-border">
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </TableCell>
       ))}
@@ -231,7 +230,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
       {
         accessorKey: "id",
         header: "ID",
-        cell: ({ row }) => <span className="font-mono text-xs text-slate-400">#{row.original.id}</span>,
+        cell: ({ row }) => <span className="font-mono text-xs text-muted-foreground/60">#{row.original.id}</span>,
       },
       {
         accessorKey: isDoctor ? "full_name" : "name",
@@ -241,7 +240,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
           return (
             <Link
               href={`/entities/${entityType}/${row.original.id}`}
-              className="font-bold text-[#00B0D0] hover:text-[#21b3d5] transition-colors"
+              className="font-bold text-primary hover:opacity-80 transition-opacity"
             >
               {name || "Unnamed Entity"}
             </Link>
@@ -252,7 +251,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
         accessorKey: isDoctor ? "phone_number" : "phone",
         header: "Phone",
         cell: ({ row }) => (
-          <span className="text-muted-foreground text-sm font-medium">
+          <span className="text-foreground text-sm font-medium">
             {(isDoctor ? row.original.phone_number : row.original.phone) || "—"}
           </span>
         ),
@@ -261,7 +260,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
         accessorKey: "address",
         header: "Address",
         cell: ({ row }) => (
-          <span className="truncate max-w-[180px] block text-slate-500 text-xs">
+          <span className="truncate max-w-[180px] block text-muted-foreground text-xs">
             {row.original.address || "No address provided"}
           </span>
         ),
@@ -276,7 +275,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
               <Badge
                 variant="secondary"
                 className={`gap-1.5 py-1 px-3 rounded-full border-none ${
-                  isVerified ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600"
+                  isVerified ? "bg-green-500/10 text-green-500" : "bg-amber-500/10 text-amber-500"
                 }`}
               >
                 {isVerified ? (
@@ -288,12 +287,11 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
               </Badge>
             );
           }
-          // For labs, clinics, hospitals – show rating
           const rating = row.original.rating || "0.0";
           return (
-            <div className="flex items-center gap-1.5 bg-slate-50 w-fit px-2 py-1 rounded-lg border border-slate-100">
+            <div className="flex items-center gap-1.5 bg-muted/50 w-fit px-2 py-1 rounded-lg border border-border">
               <IconStarFilled className="size-3 text-amber-400" />
-              <span className="text-xs font-bold text-slate-700">{rating}</span>
+              <span className="text-xs font-bold text-foreground">{rating}</span>
             </div>
           );
         },
@@ -306,7 +304,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8 rounded-full">
-              <IconDotsVertical className="size-4 text-slate-400" />
+              <IconDotsVertical className="size-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="rounded-xl p-2 min-w-[160px]">
@@ -361,21 +359,19 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
     }
   }
 
-  const isDoctor = entityType === "doctors";
-
   return (
     <>
       <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="rounded-[1.5rem] border border-slate-100 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-[1.5rem] border border-border bg-card shadow-sm overflow-hidden">
           <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
             <Table>
-              <TableHeader className="bg-slate-50/50">
+              <TableHeader className="bg-muted/30">
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-slate-100">
+                  <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-border">
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="h-12 text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                        className="h-12 text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
                       >
                         {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
@@ -388,7 +384,7 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
                   table.getRowModel().rows.map((row) => <DraggableRow key={row.id} row={row} />)
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="h-32 text-center text-slate-400 italic">
+                    <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground italic">
                       No {entityType} entries found.
                     </TableCell>
                   </TableRow>
@@ -399,77 +395,76 @@ export function DataTable({ data: initialData, entityType, onDelete, onRefresh, 
         </div>
       </DndContext>
 
-      {/* Edit Entity Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-md rounded-2xl bg-card border-border">
           <DialogHeader>
-            <DialogTitle>Edit {entityType.slice(0, -1)} Details</DialogTitle>
+            <DialogTitle className="text-foreground">Edit {entityType.slice(0, -1)} Details</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Name</Label>
+              <Label htmlFor="edit-name" className="text-foreground">Name</Label>
               <Input
                 id="edit-name"
                 value={editForm.name}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                className="rounded-xl"
+                className="rounded-xl bg-background border-border"
               />
             </div>
+            {/* ... other inputs updated similarly ... */}
             <div className="space-y-2">
-              <Label htmlFor="edit-address">Address</Label>
+              <Label htmlFor="edit-address" className="text-foreground">Address</Label>
               <Input
                 id="edit-address"
                 value={editForm.address}
                 onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                className="rounded-xl"
+                className="rounded-xl bg-background border-border"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-phone">Phone</Label>
+              <Label htmlFor="edit-phone" className="text-foreground">Phone</Label>
               <Input
                 id="edit-phone"
                 value={editForm.phone}
                 onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                className="rounded-xl"
+                className="rounded-xl bg-background border-border"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-email">Email</Label>
+              <Label htmlFor="edit-email" className="text-foreground">Email</Label>
               <Input
                 id="edit-email"
                 type="email"
                 value={editForm.email}
                 onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                className="rounded-xl"
+                className="rounded-xl bg-background border-border"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
+              <Label htmlFor="edit-description" className="text-foreground">Description</Label>
               <Textarea
                 id="edit-description"
                 value={editForm.description}
                 onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                 rows={3}
-                className="rounded-xl"
+                className="rounded-xl bg-background border-border"
               />
             </div>
-            {isDoctor && (
+            {entityType === "doctors" && (
               <div className="flex items-center space-x-2 pt-2">
                 <Checkbox
                   id="edit-is_verified"
                   checked={editForm.is_verified}
                   onCheckedChange={(checked) => setEditForm({ ...editForm, is_verified: !!checked })}
                 />
-                <Label htmlFor="edit-is_verified" className="text-slate-700 font-normal cursor-pointer">
+                <Label htmlFor="edit-is_verified" className="text-foreground font-normal cursor-pointer">
                   Verified
                 </Label>
-                <p className="text-xs text-slate-400 ml-2">(Mark as verified doctor)</p>
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="rounded-full">Cancel</Button>
-            <Button onClick={handleEditSubmit} disabled={submitting} className="rounded-full bg-[#00B0D0] hover:bg-[#21b3d5]">
+            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="rounded-full border-border">Cancel</Button>
+            <Button onClick={handleEditSubmit} disabled={submitting} className="rounded-full bg-primary text-primary-foreground hover:opacity-90">
               {submitting ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>

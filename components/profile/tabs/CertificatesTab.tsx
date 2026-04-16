@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { IconAward, IconPlus, IconTrash, IconCertificate } from "@tabler/icons-react";
+import { IconAward, IconPlus, IconTrash } from "@tabler/icons-react";
 import { Card } from "@/components/ui/card";
 
 interface CertificatesTabProps {
@@ -18,10 +18,10 @@ export default function CertificatesTab({
 }: CertificatesTabProps) {
   if (certificates.length === 0) {
     return (
-      <Card className="p-10 text-center border-dashed border-2 border-slate-200 bg-white rounded-[2rem]">
-        <IconCertificate className="mx-auto text-slate-300 w-12 h-12 mb-4" />
-        <p className="text-slate-500 font-medium">No certificates added</p>
-        <p className="text-slate-400 text-sm mt-1">Add professional certificates and licenses.</p>
+      <Card className="p-10 text-center border-dashed border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-[2rem]">
+        <IconAward className="mx-auto text-slate-300 dark:text-slate-600 w-12 h-12 mb-4" />
+        <p className="text-slate-500 dark:text-slate-400 font-medium">No certificates added</p>
+        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Add professional certificates and licenses.</p>
         {isOwner && (
           <button
             onClick={onAddCertificate}
@@ -51,22 +51,22 @@ export default function CertificatesTab({
         {certificates.map((cert: any) => (
           <Card
             key={cert.id}
-            className="p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all bg-white"
+            className="p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all bg-white dark:bg-slate-800"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl text-amber-600">
+                <div className="p-3 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/50 dark:to-amber-900/30 rounded-xl text-amber-600">
                   <IconAward size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800">{cert.name}</h4>
-                  <p className="text-xs text-slate-500 mt-0.5">{cert.entity}</p>
+                  <h4 className="font-bold text-slate-800 dark:text-white">{cert.name}</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{cert.entity}</p>
                 </div>
               </div>
               {isOwner && (
                 <button
                   onClick={() => onRemoveCertificate(cert.id)}
-                  className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                  className="text-slate-400 dark:text-slate-500 hover:text-red-500 transition-colors p-1"
                 >
                   <IconTrash size={18} />
                 </button>

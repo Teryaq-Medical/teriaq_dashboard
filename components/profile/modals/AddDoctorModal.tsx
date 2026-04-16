@@ -102,22 +102,22 @@ export default function AddDoctorModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden scrollbar-hide bg-white rounded-[2.5rem] border-none shadow-2xl p-8">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden scrollbar-hide bg-white dark:bg-slate-800 rounded-[2.5rem] border-none shadow-2xl p-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-black">Add Doctor to Team</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-black dark:text-white">Add Doctor to Team</DialogTitle>
         </DialogHeader>
         
         <Tabs value={doctorType} onValueChange={(v) => setDoctorType(v as any)} className="mt-6">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-2xl h-14">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-700 p-1 rounded-2xl h-14">
             <TabsTrigger 
               value="registered" 
-              className="rounded-xl h-full data-[state=active]:bg-[#00B0D0] data-[state=active]:shadow-sm data-[state=active]:text-black text-sm font-semibold text-black hover:text-white transition-all"
+              className="rounded-xl h-full data-[state=active]:bg-[#00B0D0] data-[state=active]:shadow-sm data-[state=active]:text-white text-sm font-semibold text-black dark:text-slate-300 hover:text-white dark:hover:text-white transition-all"
             >
               Registered Doctor
             </TabsTrigger>
             <TabsTrigger 
               value="unregistered" 
-              className="rounded-xl h-full data-[state=active]:bg-[#00B0D0] data-[state=active]:shadow-sm data-[state=active]:text-white text-sm font-semibold text-black hover:text-black transition-all"
+              className="rounded-xl h-full data-[state=active]:bg-[#00B0D0] data-[state=active]:shadow-sm data-[state=active]:text-white text-sm font-semibold text-black dark:text-slate-300 hover:text-white dark:hover:text-white transition-all"
             >
               Add New Doctor
             </TabsTrigger>
@@ -125,87 +125,87 @@ export default function AddDoctorModal({
           
           <TabsContent value="registered" className="space-y-4 mt-8">
             <div className="space-y-2">
-              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Doctor ID *</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Doctor ID *</Label>
               <Input
                 type="number"
                 placeholder="Enter professional ID"
                 value={registeredDoctorId}
                 onChange={(e) => setRegisteredDoctorId(e.target.value)}
-                className="rounded-2xl border-slate-200 h-12 bg-slate-50/50 placeholder:text-black text-black"
+                className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 placeholder:text-black dark:placeholder:text-slate-400 text-black dark:text-white"
               />
             </div>
           </TabsContent>
           
           <TabsContent value="unregistered" className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
             <div className="space-y-2">
-              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Full Name *</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Full Name *</Label>
               <Input
                 placeholder="Doctor's full name"
                 value={unregisteredData.full_name}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, full_name: e.target.value })}
-                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
+                className="rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 placeholder:text-black dark:placeholder:text-slate-400 text-black dark:text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Specialization *</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Specialization *</Label>
               <Input
                 placeholder="e.g. Cardiologist"
                 value={unregisteredData.specialist_name}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, specialist_name: e.target.value })}
-                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
+                className="rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 placeholder:text-black dark:placeholder:text-slate-400 text-black dark:text-white"
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Address *</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Address *</Label>
               <Input
                 placeholder="Clinic/Hospital address"
                 value={unregisteredData.address}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, address: e.target.value })}
-                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
+                className="rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 placeholder:text-black dark:placeholder:text-slate-400 text-black dark:text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Phone Number</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Phone Number</Label>
               <Input
                 placeholder="Contact number"
                 value={unregisteredData.phone_number}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, phone_number: e.target.value })}
-                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
+                className="rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 placeholder:text-black dark:placeholder:text-slate-400 text-black dark:text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">License Number</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">License Number</Label>
               <Input
                 placeholder="Medical license"
                 value={unregisteredData.license_number}
                 onChange={(e) => setUnregisteredData({ ...unregisteredData, license_number: e.target.value })}
-                className="rounded-2xl border-slate-200 bg-slate-50/50 placeholder:text-black text-black"
+                className="rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 placeholder:text-black dark:placeholder:text-slate-400 text-black dark:text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">Profile Image</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Profile Image</Label>
               <Input
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, "profile_image")}
-                className="rounded-2xl border-slate-200 bg-slate-50/50 text-black"
+                className="rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-black dark:text-white"
               />
               {unregisteredData.profile_image && (
                 <img src={unregisteredData.profile_image} alt="Preview" className="mt-2 w-20 h-20 object-cover rounded-xl" />
               )}
             </div>
             <div className="space-y-2">
-              <Label className="font-bold text-black ml-1 text-sm uppercase tracking-wider">License Document</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">License Document</Label>
               <Input
                 type="file"
                 accept="image/*,.pdf"
                 onChange={(e) => handleImageUpload(e, "license_document")}
-                className="rounded-2xl border-slate-200 bg-slate-50/50 text-black"
+                className="rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-black dark:text-white"
               />
             </div>
-            <div className="col-span-full bg-cyan-50/50 p-4 rounded-2xl flex gap-3 items-center border border-cyan-100/50 mt-2">
-              <IconInfoCircle className="text-black" size={20} />
-              <p className="text-xs text-black font-medium italic">
+            <div className="col-span-full bg-cyan-50/50 dark:bg-cyan-950/30 p-4 rounded-2xl flex gap-3 items-center border border-cyan-100/50 dark:border-cyan-800/50 mt-2">
+              <IconInfoCircle className="text-black dark:text-cyan-400" size={20} />
+              <p className="text-xs text-black dark:text-cyan-300 font-medium italic">
                 This professional will require verification before going live.
               </p>
             </div>
@@ -213,57 +213,57 @@ export default function AddDoctorModal({
         </Tabs>
 
         <div className="mt-10">
-          <Label className="text-lg font-bold text-black block mb-4">Working Schedules</Label>
+          <Label className="text-lg font-bold text-black dark:text-white block mb-4">Working Schedules</Label>
           {schedules.map((schedule, index) => (
-            <div key={index} className="mb-4 p-5 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] relative">
+            <div key={index} className="mb-4 p-5 bg-slate-50/50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700 rounded-[1.5rem] relative">
               {schedules.length > 1 && (
-                <button onClick={() => removeSchedule(index)} className="absolute top-4 right-4 text-black hover:text-red-600 transition-colors">
-                  <IconTrash size={18} className="text-black" />
+                <button onClick={() => removeSchedule(index)} className="absolute top-4 right-4 text-black dark:text-slate-400 hover:text-red-600 transition-colors">
+                  <IconTrash size={18} className="text-black dark:text-slate-400" />
                 </button>
               )}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-black">Day</Label>
+                  <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">Day</Label>
                   <select
                     value={schedule.day}
                     onChange={(e) => updateSchedule(index, "day", e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#00B0D0]/20 outline-none h-11 text-sm text-black"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#00B0D0]/20 outline-none h-11 text-sm text-black dark:text-white"
                   >
-                    <option value="" className="text-black">Select day</option>
-                    {days.map(day => <option key={day.value} value={day.value} className="text-black">{day.label}</option>)}
+                    <option value="" className="text-black dark:text-white">Select day</option>
+                    {days.map(day => <option key={day.value} value={day.value} className="text-black dark:text-white">{day.label}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-black">Start</Label>
+                  <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">Start</Label>
                   <Input 
                     type="time" 
                     value={schedule.start_time} 
                     onChange={(e) => updateSchedule(index, "start_time", e.target.value)} 
-                    className="bg-white rounded-xl h-11 text-black"
+                    className="bg-white dark:bg-slate-800 rounded-xl h-11 text-black dark:text-white"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-black">End</Label>
+                  <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">End</Label>
                   <Input 
                     type="time" 
                     value={schedule.end_time} 
                     onChange={(e) => updateSchedule(index, "end_time", e.target.value)} 
-                    className="bg-white rounded-xl h-11 text-black"
+                    className="bg-white dark:bg-slate-800 rounded-xl h-11 text-black dark:text-white"
                   />
                 </div>
               </div>
             </div>
           ))}
-          <Button variant="outline" onClick={addSchedule} className="w-full border-dashed border-2 rounded-2xl py-7 text-black hover:text-[#00B0D0] hover:border-[#00B0D0] bg-white transition-colors">
-            <IconPlus size={20} className="mr-2 text-black" /> Add Another Shift
+          <Button variant="outline" onClick={addSchedule} className="w-full border-dashed border-2 rounded-2xl py-7 text-black dark:text-slate-300 hover:text-[#00B0D0] hover:border-[#00B0D0] bg-white dark:bg-slate-800 transition-colors">
+            <IconPlus size={20} className="mr-2 text-black dark:text-slate-300" /> Add Another Shift
           </Button>
         </div>
 
         <div className="flex justify-end gap-3 mt-10">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl px-8 h-12 text-black font-bold hover:text-slate-700">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl px-8 h-12 text-black dark:text-slate-300 font-bold hover:text-slate-700 dark:hover:text-white">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={loading} className="bg-[#00B0D0] hover:bg-[#0096b0] rounded-xl px-10 h-12 font-bold shadow-lg shadow-cyan-100 text-white">
+          <Button onClick={handleSubmit} disabled={loading} className="bg-[#00B0D0] hover:bg-[#0096b0] rounded-xl px-10 h-12 font-bold shadow-lg shadow-cyan-100 dark:shadow-cyan-950/50 text-white">
             {loading ? "Adding..." : "Confirm & Save"}
           </Button>
         </div>

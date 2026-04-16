@@ -5,24 +5,24 @@ import Link from "next/link";
 import { IconArrowLeft, IconLogout } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { ModeToggle } from "@/components/ModeToggle";
 
 interface ProfileHeaderProps {
-  entityType: string;
+  entityType?: string;
   isOwner: boolean;
   onEditBasicInfo: () => void;
   onLogout: () => void;
 }
 
 export default function ProfileHeader({
-  entityType,
   isOwner,
   onEditBasicInfo,
   onLogout,
 }: ProfileHeaderProps) {
   return (
-    <header className="grid grid-cols-3 items-center">
-      {/* Left column: Logo + brand name */}
-      <div className="flex items-center gap-4 justify-start">
+    <header className="flex items-center justify-between flex-wrap gap-4">
+      {/* Left section: Logo + brand name */}
+      <div className="flex items-center gap-4">
         <Link href="/dashboard">
           <Image
             src="/teriaq.svg"
@@ -37,15 +37,9 @@ export default function ProfileHeader({
         </p>
       </div>
 
-      {/* Center column: Profile title (perfectly centered) */}
-      <div className="text-center">
-        <h2 className="text-xl font-bold text-slate-900 capitalize">
-          {entityType.replace('s', '')} Profile
-        </h2>
-      </div>
-
-      {/* Right column: Action buttons */}
-      <div className="flex justify-end gap-3">
+      {/* Right section: Buttons + Theme Toggle */}
+      <div className="flex items-center gap-3">
+        <ModeToggle />
         {isOwner && (
           <Button
             onClick={onEditBasicInfo}

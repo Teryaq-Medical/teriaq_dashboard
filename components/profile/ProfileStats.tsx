@@ -33,14 +33,14 @@ export default function ProfileStats({ stats, rating }: ProfileStatsProps) {
 
 function StatCard({ label, value, trend, icon }: any) {
   return (
-    <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+        <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{label}</p>
         {icon}
       </div>
       <div className="flex items-baseline gap-2">
-        <h4 className="text-3xl font-black text-slate-900">{value}</h4>
-        <span className="text-[9px] font-bold text-[#00B0D0] bg-cyan-50 px-2 py-0.5 rounded-full">
+        <h4 className="text-3xl font-black text-slate-900 dark:text-white">{value}</h4>
+        <span className="text-[9px] font-bold text-[#00B0D0] bg-cyan-50 dark:bg-cyan-950/50 px-2 py-0.5 rounded-full">
           {trend}
         </span>
       </div>

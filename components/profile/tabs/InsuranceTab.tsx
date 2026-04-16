@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { IconShieldCheck, IconPlus, IconTrash, IconBuildingStore } from "@tabler/icons-react";
+import { IconShieldCheck, IconPlus, IconTrash } from "@tabler/icons-react";
 import { Card } from "@/components/ui/card";
 
 interface InsuranceTabProps {
@@ -18,10 +18,10 @@ export default function InsuranceTab({
 }: InsuranceTabProps) {
   if (insurances.length === 0) {
     return (
-      <Card className="p-10 text-center border-dashed border-2 border-slate-200 bg-white rounded-[2rem]">
-        <IconBuildingStore className="mx-auto text-slate-300 w-12 h-12 mb-4" />
-        <p className="text-slate-500 font-medium">No insurance providers listed</p>
-        <p className="text-slate-400 text-sm mt-1">Add accepted insurance plans.</p>
+      <Card className="p-10 text-center border-dashed border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-[2rem]">
+        <IconShieldCheck className="mx-auto text-slate-300 dark:text-slate-600 w-12 h-12 mb-4" />
+        <p className="text-slate-500 dark:text-slate-400 font-medium">No insurance providers listed</p>
+        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Add accepted insurance plans.</p>
         {isOwner && (
           <button
             onClick={onAddInsurance}
@@ -51,16 +51,16 @@ export default function InsuranceTab({
         {insurances.map((ins: any) => (
           <Card
             key={ins.id}
-            className="p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all bg-white"
+            className="p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all bg-white dark:bg-slate-800"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl text-[#00B0D0]">
+                <div className="p-3 bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-950/50 dark:to-cyan-900/30 rounded-xl text-[#00B0D0]">
                   <IconShieldCheck size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800">{ins.entity}</h4>
-                  <p className="text-xs text-slate-500 mt-0.5 capitalize">
+                  <h4 className="font-bold text-slate-800 dark:text-white">{ins.entity}</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 capitalize">
                     {ins.status === 'عادية' ? 'Standard' : ins.status === 'تغطية كاملة' ? 'Full Coverage' : ins.status === 'جزئية' ? 'Partial' : 'Expired'}
                   </p>
                 </div>
@@ -68,7 +68,7 @@ export default function InsuranceTab({
               {isOwner && (
                 <button
                   onClick={() => onRemoveInsurance(ins.id)}
-                  className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                  className="text-slate-400 dark:text-slate-500 hover:text-red-500 transition-colors p-1"
                 >
                   <IconTrash size={18} />
                 </button>

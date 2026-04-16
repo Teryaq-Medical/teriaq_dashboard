@@ -127,7 +127,7 @@ export default function UltraModernEntityProfile() {
     }
   }, [entityType, id, refreshTrigger]);
 
-  // Fetch doctor assignments (only for doctors) – contains schedules grouped by entity_type
+  // Fetch doctor assignments (only for doctors)
   useEffect(() => {
     if (entityType === "doctors" && id) {
       setSchedulesLoading(true);
@@ -433,7 +433,6 @@ export default function UltraModernEntityProfile() {
     return matchesSearch && matchesType;
   });
 
-  // ✅ Fixed: Cast to string[]
   const uniqueSpecialties = Array.from(
     new Set(
       (data.assignments || [])
@@ -447,57 +446,74 @@ export default function UltraModernEntityProfile() {
 
   const showBookingsTab = isOwner || currentUser?.is_superuser || currentUser?.is_staff || currentUser?.user_type === "admin";
   const showTeamTab = isHospitalOrClinic;
-  const showScheduleTab = isDoctor;
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] p-4 lg:p-10">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <ProfileHeader entityType={entityType} isOwner={isOwner} onEditBasicInfo={() => setEditBasicInfoOpen(true)} onLogout={handleLogout} />
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 lg:space-y-10">
+          <ProfileHeader 
+            entityType={entityType}
+            isOwner={isOwner} 
+            onEditBasicInfo={() => setEditBasicInfoOpen(true)} 
+            onLogout={handleLogout} 
+          />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-4 space-y-6">
-            <ProfileSidebar data={data} isDoctor={isDoctor} displayName={displayName} rating={rating} profileImg={profileImg} isOwner={isOwner} onEditBasicInfo={() => setEditBasicInfoOpen(true)} onEditAbout={() => setEditAboutOpen(true)} />
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+            {/* Sidebar - full width on mobile, 4 cols on desktop */}
+            <div className="lg:col-span-4 space-y-6">
+              <ProfileSidebar 
+                data={data} 
+                isDoctor={isDoctor} 
+                displayName={displayName} 
+                rating={rating} 
+                profileImg={profileImg} 
+                isOwner={isOwner} 
+                onEditBasicInfo={() => setEditBasicInfoOpen(true)} 
+                onEditAbout={() => setEditAboutOpen(true)} 
+              />
+            </div>
 
-          <div className="lg:col-span-8 space-y-6">
-            <ProfileStats stats={stats} rating={rating} />
+            {/* Main Content - full width on mobile, 8 cols on desktop */}
+            <div className="lg:col-span-8 space-y-6">
+              <ProfileStats stats={stats} rating={rating} />
 
-            <ProfileTabs
-              data={data}
-              isDoctor={isDoctor}
-              isLab={isLab}
-              showTeamTab={showTeamTab}
-              isOwner={isOwner}
-              showBookingsTab={showBookingsTab}
-              activeFilter={activeFilter}
-              setActiveFilter={setActiveFilter}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              teamSearchQuery={teamSearchQuery}
-              setTeamSearchQuery={setTeamSearchQuery}
-              teamFilter={teamFilter}
-              setTeamFilter={setTeamFilter}
-              filteredBookings={filteredBookings}
-              labBookings={labBookingsFiltered}
-              filteredTeam={filteredTeam}
-              uniqueSpecialties={uniqueSpecialties}
-              doctorAssignments={doctorAssignments}
-              schedulesLoading={schedulesLoading}
-              onEditAbout={() => setEditAboutOpen(true)}
-              onUpdateDoctorSpecialist={updateDoctorSpecialist}
-              onConfirmAppointment={isLab ? confirmLabBooking : confirmAppointment}
-              onCompleteAppointment={isLab ? completeLabBooking : completeAppointment}
-              onAddDoctor={() => setAddDoctorOpen(true)}
-              onRemoveDoctor={removeDoctor}
-              onAddSpecialist={addSpecialist}
-              onRemoveSpecialist={removeSpecialist}
-              onAddSchedule={() => setEditingSection("schedule")}
-              onRemoveSchedule={removeSchedule}
-              onAddInsurance={() => setEditingSection("insurance")}
-              onRemoveInsurance={removeInsurance}
-              onAddCertificate={() => setEditingSection("certs")}
-              onRemoveCertificate={removeCertificate}
-            />
+              <ProfileTabs
+                data={data}
+                isDoctor={isDoctor}
+                isLab={isLab}
+                showTeamTab={showTeamTab}
+                isOwner={isOwner}
+                showBookingsTab={showBookingsTab}
+                activeFilter={activeFilter}
+                setActiveFilter={setActiveFilter}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                teamSearchQuery={teamSearchQuery}
+                setTeamSearchQuery={setTeamSearchQuery}
+                teamFilter={teamFilter}
+                setTeamFilter={setTeamFilter}
+                filteredBookings={filteredBookings}
+                labBookings={labBookingsFiltered}
+                filteredTeam={filteredTeam}
+                uniqueSpecialties={uniqueSpecialties}
+                doctorAssignments={doctorAssignments}
+                schedulesLoading={schedulesLoading}
+                onEditAbout={() => setEditAboutOpen(true)}
+                onUpdateDoctorSpecialist={updateDoctorSpecialist}
+                onConfirmAppointment={isLab ? confirmLabBooking : confirmAppointment}
+                onCompleteAppointment={isLab ? completeLabBooking : completeAppointment}
+                onAddDoctor={() => setAddDoctorOpen(true)}
+                onRemoveDoctor={removeDoctor}
+                onAddSpecialist={addSpecialist}
+                onRemoveSpecialist={removeSpecialist}
+                onAddSchedule={() => setEditingSection("schedule")}
+                onRemoveSchedule={removeSchedule}
+                onAddInsurance={() => setEditingSection("insurance")}
+                onRemoveInsurance={removeInsurance}
+                onAddCertificate={() => setEditingSection("certs")}
+                onRemoveCertificate={removeCertificate}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -511,9 +527,38 @@ export default function UltraModernEntityProfile() {
       <AddCertificateModal open={editingSection === "certs"} onOpenChange={(open) => !open && setEditingSection(null)} certificate={newCertificate} setCertificate={setNewCertificate} onSave={addCertificate} />
 
       <style jsx global>{`
-        .modern-tab { background: transparent !important; border-radius: 0 !important; font-weight: 800 !important; font-size: 0.7rem !important; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8 !important; border-bottom: 3px solid transparent !important; padding: 0 0 0.75rem 0 !important; transition: all 0.3s ease; }
-        .modern-tab[data-state="active"] { color: #00b0d0 !important; border-bottom-color: #00b0d0 !important; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .modern-tab {
+          background: transparent !important;
+          border-radius: 0 !important;
+          font-weight: 800 !important;
+          font-size: 0.7rem !important;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #94a3b8 !important;
+          border-bottom: 3px solid transparent !important;
+          padding: 0 0 0.75rem 0 !important;
+          transition: all 0.3s ease;
+        }
+        
+        .modern-tab[data-state="active"] {
+          color: #00b0d0 !important;
+          border-bottom-color: #00b0d0 !important;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        
+        @media (max-width: 768px) {
+          .modern-tab {
+            font-size: 0.6rem !important;
+            padding: 0 0 0.5rem 0 !important;
+          }
+        }
+        
+        * {
+          transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
       `}</style>
     </div>
   );

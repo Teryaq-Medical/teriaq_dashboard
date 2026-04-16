@@ -1,5 +1,3 @@
-// components/profile/tabs/TeamTab.tsx
-
 import React, { useState } from "react";
 import Link from "next/link";
 import { IconSearch, IconUsers, IconStethoscope, IconPlus, IconTrash, IconUserOff } from "@tabler/icons-react";
@@ -50,14 +48,14 @@ export default function TeamTab({
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2">
         <div className="relative w-full md:w-80">
           <IconSearch
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
             size={18}
           />
           <Input
             placeholder="Search doctor or specialty..."
             value={teamSearchQuery}
             onChange={(e) => setTeamSearchQuery(e.target.value)}
-            className="pl-10 rounded-2xl border-slate-200 focus:border-[#00B0D0] bg-white h-11 text-sm shadow-sm"
+            className="pl-10 rounded-2xl border-slate-200 dark:border-slate-700 focus:border-[#00B0D0] bg-white dark:bg-slate-800 h-11 text-sm shadow-sm dark:text-white"
           />
         </div>
 
@@ -67,7 +65,7 @@ export default function TeamTab({
             className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all whitespace-nowrap ${
               teamFilter === "all"
                 ? "bg-[#00B0D0] text-white shadow-md"
-                : "bg-white text-slate-400 border border-slate-100 hover:border-[#00B0D0]"
+                : "bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-700 hover:border-[#00B0D0]"
             }`}
           >
             All Staff
@@ -79,7 +77,7 @@ export default function TeamTab({
               className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all whitespace-nowrap ${
                 teamFilter === spec
                   ? "bg-[#00B0D0] text-white shadow-md"
-                  : "bg-white text-slate-400 border border-slate-100 hover:border-[#00B0D0]"
+                  : "bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-700 hover:border-[#00B0D0]"
               }`}
             >
               {spec}
@@ -88,13 +86,13 @@ export default function TeamTab({
         </div>
       </div>
 
-      <div className="flex gap-2 px-2 border-b border-slate-100">
+      <div className="flex gap-2 px-2 border-b border-slate-100 dark:border-slate-700">
         <button
           onClick={() => setShowOnlyRegistered("all")}
           className={`px-4 py-2 text-sm font-medium transition-all ${
             showOnlyRegistered === "all"
               ? "text-[#00B0D0] border-b-2 border-[#00B0D0]"
-              : "text-slate-400 hover:text-slate-600"
+              : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
           }`}
         >
           All Doctors ({filteredTeam.length})
@@ -104,7 +102,7 @@ export default function TeamTab({
           className={`px-4 py-2 text-sm font-medium transition-all ${
             showOnlyRegistered === "registered"
               ? "text-[#00B0D0] border-b-2 border-[#00B0D0]"
-              : "text-slate-400 hover:text-slate-600"
+              : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
           }`}
         >
           Registered ({registeredDoctors.length})
@@ -114,7 +112,7 @@ export default function TeamTab({
           className={`px-4 py-2 text-sm font-medium transition-all ${
             showOnlyRegistered === "unregistered"
               ? "text-[#00B0D0] border-b-2 border-[#00B0D0]"
-              : "text-slate-400 hover:text-slate-600"
+              : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
           }`}
         >
           Unregistered ({unregisteredDoctors.length})
@@ -136,7 +134,6 @@ export default function TeamTab({
             const doctor = isRegistered ? asgn.doctor : asgn.unregistered_doctor;
             const doctorName = doctor?.full_name || "Unknown Doctor";
             const specialty = doctor?.specialist?.name || "General Specialist";
-            // ✅ Use doctor.profile_image directly (now a string URL)
             const profileImage = doctor?.profile_image || "/placeholders/default-doctor.png";
             const status = asgn.status;
             const isPending = status === "pending";
@@ -144,13 +141,13 @@ export default function TeamTab({
             return (
               <div
                 key={asgn.id}
-                className="group flex items-center justify-between p-4 bg-white rounded-[2rem] border border-slate-100 hover:border-[#00B0D0]/30 hover:shadow-xl transition-all duration-300"
+                className="group flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700 hover:border-[#00B0D0]/30 hover:shadow-xl transition-all duration-300"
               >
                 <Link
                   href={isRegistered ? `/entities/doctors/${doctor?.id}` : "#"}
                   className={`flex items-center gap-4 flex-1 ${!isRegistered ? "cursor-default" : ""}`}
                 >
-                  <div className="size-14 rounded-2xl bg-slate-100 overflow-hidden border-2 border-white shadow-sm relative">
+                  <div className="size-14 rounded-2xl bg-slate-100 dark:bg-slate-700 overflow-hidden border-2 border-white dark:border-slate-800 shadow-sm relative">
                     <img
                       src={profileImage}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -159,28 +156,28 @@ export default function TeamTab({
                       }
                     />
                     {!isRegistered && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center">
                         <IconUserOff size={20} className="text-white" />
                       </div>
                     )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-bold text-slate-900 group-hover:text-[#00B0D0] transition-colors">
+                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#00B0D0] transition-colors">
                         {doctorName}
                       </p>
                       {!isRegistered && (
-                        <Badge className="bg-orange-100 text-orange-700 text-[9px] px-2 py-0.5">
+                        <Badge className="bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 text-[9px] px-2 py-0.5">
                           Pending Approval
                         </Badge>
                       )}
                       {isPending && isRegistered && (
-                        <Badge className="bg-yellow-100 text-yellow-700 text-[9px] px-2 py-0.5">
+                        <Badge className="bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400 text-[9px] px-2 py-0.5">
                           Pending
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 text-slate-400 mt-0.5">
+                    <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 mt-0.5">
                       <IconStethoscope size={14} className="text-[#00B0D0]" />
                       <p className="text-[10px] font-bold uppercase tracking-tight">
                         {specialty}
@@ -188,11 +185,11 @@ export default function TeamTab({
                     </div>
                     {!isRegistered && (
                       <div className="flex items-center gap-2 mt-1">
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500">
                           {doctor?.phone_number}
                         </p>
-                        <p className="text-[10px] text-slate-400">•</p>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500">•</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500">
                           {doctor?.address}
                         </p>
                       </div>
@@ -202,7 +199,7 @@ export default function TeamTab({
                 {isOwner && (
                   <button
                     onClick={() => onRemoveDoctor(asgn.id)}
-                    className="ml-2 p-2 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50"
+                    className="ml-2 p-2 rounded-full text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50"
                   >
                     <IconTrash size={16} />
                   </button>
@@ -211,9 +208,9 @@ export default function TeamTab({
             );
           })
         ) : (
-          <div className="col-span-full py-12 text-center bg-white rounded-[2.5rem] border border-dashed border-slate-200">
-            <IconUsers className="mx-auto text-slate-200 mb-2" size={40} />
-            <p className="text-slate-400 text-sm font-medium italic">
+          <div className="col-span-full py-12 text-center bg-white dark:bg-slate-800 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-slate-700">
+            <IconUsers className="mx-auto text-slate-200 dark:text-slate-700 mb-2" size={40} />
+            <p className="text-slate-400 dark:text-slate-500 text-sm font-medium italic">
               {teamSearchQuery 
                 ? "No team members match your criteria."
                 : showOnlyRegistered === "registered" 

@@ -8,6 +8,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface AddSpecialistModalProps {
   open: boolean;
@@ -21,12 +23,25 @@ export default function AddSpecialistModal({
   onSave,
 }: AddSpecialistModalProps) {
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    if (name.trim()) {
-      onSave(name.trim());
+  const handleSubmit = async () => {
+    if (!name.trim()) {
+      toast.error("Specialty name is required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onSave(name.trim());
+      toast.success("Specialty added successfully");
       setName("");
       onOpenChange(false);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to add specialty");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,9 +67,10 @@ export default function AddSpecialistModal({
           </div>
           <Button
             onClick={handleSubmit}
+            disabled={loading}
             className="w-full bg-[#00B0D0] hover:bg-[#0096b0] text-white rounded-xl py-6 font-bold transition-all shadow-lg shadow-cyan-100 dark:shadow-cyan-950/50"
           >
-            Add Specialty
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Add Specialty"}
           </Button>
         </div>
       </DialogContent>

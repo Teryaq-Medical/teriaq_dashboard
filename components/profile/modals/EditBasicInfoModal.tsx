@@ -8,6 +8,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface EditBasicInfoModalProps {
   open: boolean;
@@ -26,6 +28,13 @@ export default function EditBasicInfoModal({
 }: EditBasicInfoModalProps) {
   const [imagePreview, setImagePreview] = useState<string>(data.image || data.profile_image || "");
   const [imageBase64, setImageBase64] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: displayName,
+    address: data.address || "",
+    phone: data.phone || data.phone_number || "",
+    email: data.email || "",
+  });
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,18 +50,27 @@ export default function EditBasicInfoModal({
   };
 
   const handleSave = async () => {
-    const updated: any = {
-      name: (document.getElementById("name") as HTMLInputElement).value,
-      address: (document.getElementById("address") as HTMLInputElement).value,
-      phone: (document.getElementById("phone") as HTMLInputElement).value,
-      email: (document.getElementById("email") as HTMLInputElement).value,
-    };
-    if (imageBase64) {
-      updated.image = imageBase64;
-      updated.profile_image = imageBase64;
+    setLoading(true);
+    try {
+      const updated: any = {
+        name: formData.name,
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+      };
+      if (imageBase64) {
+        updated.image = imageBase64;
+        updated.profile_image = imageBase64;
+      }
+      await onSave(updated);
+      toast.success("Profile information updated successfully");
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
     }
-    await onSave(updated);
-    onOpenChange(false);
   };
 
   return (
@@ -80,16 +98,16 @@ export default function EditBasicInfoModal({
           <div className="space-y-1.5">
             <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Full Display Name</Label>
             <Input 
-              defaultValue={displayName} 
-              id="name" 
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white" 
             />
           </div>
           <div className="space-y-1.5">
             <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Practice Location</Label>
             <Input 
-              defaultValue={data.address} 
-              id="address" 
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white" 
             />
           </div>
@@ -97,25 +115,26 @@ export default function EditBasicInfoModal({
             <div className="space-y-1.5">
               <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Phone Number</Label>
               <Input 
-                defaultValue={data.phone || data.phone_number} 
-                id="phone" 
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white" 
               />
             </div>
             <div className="space-y-1.5">
               <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Email Address</Label>
               <Input 
-                defaultValue={data.email} 
-                id="email" 
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white" 
               />
             </div>
           </div>
           <Button
             onClick={handleSave}
+            disabled={loading}
             className="w-full bg-[#00B0D0] hover:bg-[#0096b0] h-14 rounded-2xl font-bold text-lg shadow-xl shadow-cyan-100 dark:shadow-cyan-950/50 mt-4 transition-all text-white"
           >
-            Save Profile Data
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Save Profile Data"}
           </Button>
         </div>
       </DialogContent>

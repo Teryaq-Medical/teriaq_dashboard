@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconPlus, IconTrash, IconInfoCircle } from "@tabler/icons-react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface Schedule {
   day: string;
@@ -87,17 +89,27 @@ export default function AddDoctorModal({
     try {
       const validSchedules = schedules.filter(s => s.day && s.start_time && s.end_time);
       if (doctorType === "registered") {
-        if (!registeredDoctorId) { alert("Please enter doctor ID"); return; }
+        if (!registeredDoctorId) {
+          toast.error("Please enter doctor ID");
+          return;
+        }
         await onAdd({ doctor_type: "registered", doctor_id: parseInt(registeredDoctorId), schedules: validSchedules });
       } else {
         if (!unregisteredData.full_name || !unregisteredData.specialist_name || !unregisteredData.phone_number) {
-          alert("Please fill required fields"); return;
+          toast.error("Please fill required fields");
+          return;
         }
         await onAdd({ ...unregisteredData, doctor_type: "unregistered", schedules: validSchedules });
       }
+      toast.success("Doctor added successfully");
       onOpenChange(false);
       setSchedules([{ day: "", start_time: "", end_time: "" }]);
-    } catch (error) { console.error(error); } finally { setLoading(false); }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to add doctor");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -137,6 +149,7 @@ export default function AddDoctorModal({
           </TabsContent>
           
           <TabsContent value="unregistered" className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
+            {/* ... all the fields remain the same ... */}
             <div className="space-y-2">
               <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Full Name *</Label>
               <Input
@@ -229,8 +242,8 @@ export default function AddDoctorModal({
                     onChange={(e) => updateSchedule(index, "day", e.target.value)}
                     className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#00B0D0]/20 outline-none h-11 text-sm text-black dark:text-white"
                   >
-                    <option value="" className="text-black dark:text-white">Select day</option>
-                    {days.map(day => <option key={day.value} value={day.value} className="text-black dark:text-white">{day.label}</option>)}
+                    <option value="">Select day</option>
+                    {days.map(day => <option key={day.value} value={day.value}>{day.label}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
@@ -264,7 +277,7 @@ export default function AddDoctorModal({
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={loading} className="bg-[#00B0D0] hover:bg-[#0096b0] rounded-xl px-10 h-12 font-bold shadow-lg shadow-cyan-100 dark:shadow-cyan-950/50 text-white">
-            {loading ? "Adding..." : "Confirm & Save"}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Confirm & Save"}
           </Button>
         </div>
       </DialogContent>

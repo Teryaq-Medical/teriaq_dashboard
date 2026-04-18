@@ -3,6 +3,8 @@ import { IconStethoscope, IconEdit, IconCheck, IconX } from "@tabler/icons-react
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface DoctorSpecialistEditorProps {
   currentSpecialist: string;
@@ -20,9 +22,21 @@ export default function DoctorSpecialistEditor({
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-    if (!newSpecialist.trim()) return;
+    if (!newSpecialist.trim()) {
+      toast.error("Specialization name is required");
+      return;
+    }
     setLoading(true);
-    try { await onUpdate(newSpecialist.trim()); setIsEditing(false); } finally { setLoading(false); }
+    try {
+      await onUpdate(newSpecialist.trim());
+      toast.success("Specialization updated successfully");
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to update specialization");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const cardClasses = "p-6 rounded-[2.5rem] border-none bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-300";
@@ -55,9 +69,11 @@ export default function DoctorSpecialistEditor({
             autoFocus
           />
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setIsEditing(false)} className="rounded-full px-6 text-slate-500 dark:text-slate-400">Cancel</Button>
+            <Button variant="ghost" onClick={() => setIsEditing(false)} className="rounded-full px-6 text-slate-500 dark:text-slate-400">
+              Cancel
+            </Button>
             <Button onClick={handleSave} disabled={loading} className="rounded-full bg-[#00B0D0] hover:bg-[#0096b0] px-8 font-bold text-white">
-              {loading ? "Updating..." : "Save"}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : "Save"}
             </Button>
           </div>
         </div>

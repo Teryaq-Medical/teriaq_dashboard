@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface AddCertificateModalProps {
   open: boolean;
@@ -24,6 +26,32 @@ export default function AddCertificateModal({
   setCertificate,
   onSave,
 }: AddCertificateModalProps) {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!certificate.name.trim()) {
+      toast.error("Certificate name is required");
+      return;
+    }
+    if (!certificate.entity.trim()) {
+      toast.error("Issuing entity is required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onSave(certificate);
+      toast.success("Certificate added successfully");
+      setCertificate({ name: "", entity: "" });
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to add certificate");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white dark:bg-slate-800 rounded-[2rem] border-none shadow-2xl p-8 max-w-md">
@@ -56,14 +84,11 @@ export default function AddCertificateModal({
             />
           </div>
           <Button
-            onClick={async () => {
-              await onSave(certificate);
-              setCertificate({ name: "", entity: "" });
-              onOpenChange(false);
-            }}
+            onClick={handleSubmit}
+            disabled={loading}
             className="w-full bg-[#00B0D0] hover:bg-[#0096b0] text-white rounded-xl py-6 font-bold transition-all shadow-lg shadow-cyan-100 dark:shadow-cyan-950/50 mt-2"
           >
-            Add Certificate
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Add Certificate"}
           </Button>
         </div>
       </DialogContent>

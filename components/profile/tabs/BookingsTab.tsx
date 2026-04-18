@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 
 interface BookingsTabProps {
@@ -46,13 +47,13 @@ export default function BookingsTab({
   isLab = false,
 }: BookingsTabProps) {
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleConfirm = async (id: string) => {
-    if (window.confirm("Confirm this booking?")) {
-      await onConfirmAppointment(id);
-    }
+    setConfirmingId(null);
+    await onConfirmAppointment(id);
   };
 
   const handleComplete = async (id: string) => {
@@ -199,7 +200,7 @@ export default function BookingsTab({
                 {isOwner && booking.status === "pending" && (
                   <Button
                     size="sm"
-                    onClick={() => handleConfirm(booking.id)}
+                    onClick={() => setConfirmingId(booking.id)}
                     className="rounded-full bg-green-500 hover:bg-green-600 text-white"
                   >
                     <IconCheck size={14} className="mr-1" /> Confirm
@@ -227,6 +228,32 @@ export default function BookingsTab({
         )}
       </div>
 
+      {/* Confirmation Dialog for Confirm action */}
+      <Dialog open={!!confirmingId} onOpenChange={() => setConfirmingId(null)}>
+        <DialogContent className="bg-white dark:bg-slate-800 rounded-2xl max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Booking</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-slate-600 dark:text-slate-400">
+              Are you sure you want to confirm this booking? Once confirmed, the patient will receive a confirmation.
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirmingId(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => confirmingId && handleConfirm(confirmingId)}
+              className="bg-green-500 hover:bg-green-600 text-white"
+            >
+              Yes, Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Complete Booking Modal */}
       <Dialog open={!!completingId} onOpenChange={() => setCompletingId(null)}>
         <DialogContent className="bg-white dark:bg-slate-800">
           <DialogHeader>

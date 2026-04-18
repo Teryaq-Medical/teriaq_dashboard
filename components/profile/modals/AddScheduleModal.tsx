@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface AddScheduleModalProps {
   open: boolean;
@@ -24,7 +26,7 @@ export default function AddScheduleModal({
   setSchedule,
   onSave,
 }: AddScheduleModalProps) {
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
   const daysOfWeek = [
     { value: "mon", label: "Monday" }, { value: "tue", label: "Tuesday" },
     { value: "wed", label: "Wednesday" }, { value: "thu", label: "Thursday" },
@@ -33,13 +35,28 @@ export default function AddScheduleModal({
   ];
 
   const handleSubmit = async () => {
+    if (!schedule.day) {
+      toast.error("Please select a day");
+      return;
+    }
+    if (!schedule.start_time || !schedule.end_time) {
+      toast.error("Please enter start and end times");
+      return;
+    }
+
     setLoading(true);
     try {
       const scheduleData = { ...schedule, date: schedule.date || new Date().toISOString().split('T')[0] };
       await onSave(scheduleData);
+      toast.success("Schedule added successfully");
       setSchedule({ day: "", start_time: "", end_time: "", date: "" });
       onOpenChange(false);
-    } finally { setLoading(false); }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to add schedule");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -94,7 +111,7 @@ export default function AddScheduleModal({
             disabled={loading || !schedule.day} 
             className="w-full bg-[#00B0D0] hover:bg-[#0096b0] h-14 rounded-2xl font-bold shadow-lg shadow-cyan-100 dark:shadow-cyan-950/50 text-white"
           >
-            {loading ? "Adding..." : "Save Schedule Slot"}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Save Schedule Slot"}
           </Button>
         </div>
       </DialogContent>

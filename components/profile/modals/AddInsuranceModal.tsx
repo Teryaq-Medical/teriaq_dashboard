@@ -8,6 +8,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface AddInsuranceModalProps {
   open: boolean;
@@ -33,12 +35,23 @@ export default function AddInsuranceModal({
   ];
 
   const handleSubmit = async () => {
+    if (!insurance.entity.trim()) {
+      toast.error("Provider name is required");
+      return;
+    }
+
     setLoading(true);
     try {
       await onSave(insurance);
+      toast.success("Insurance provider added successfully");
       setInsurance({ entity: "", status: "عادية" });
       onOpenChange(false);
-    } finally { setLoading(false); }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to add insurance provider");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,7 +91,7 @@ export default function AddInsuranceModal({
             </select>
           </div>
           <Button onClick={handleSubmit} disabled={loading} className="w-full bg-[#00B0D0] hover:bg-[#0096b0] rounded-xl h-14 font-bold text-white shadow-xl shadow-cyan-100 dark:shadow-cyan-950/50 transition-all">
-            {loading ? "Saving..." : "Connect Provider"}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Connect Provider"}
           </Button>
         </div>
       </DialogContent>

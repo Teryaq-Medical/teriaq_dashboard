@@ -16,10 +16,53 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Dashboard",
+  title: {
+    default: "Teriaq Management | The Smart Healthcare Solution - ترياق",
+    template: "%s | Teriaq Management",
+  },
+  description: "Streamline your healthcare operations with Teriaq Management. The all-in-one dashboard for advanced patient tracking, analytics, and medical resource management.",
+  keywords: ["Healthcare Management", "Medical Dashboard", "Teriaq", "ترياق", "Health Tech", "Clinic Management System"],
+  authors: [{ name: "Teriaq Team" }],
+  creator: "Teriaq Management",
+  
+  // Icons configuration
+  icons: {
+    icon: [
+      { url: '/teriaq.svg', type: 'image/svg+xml' },
+      // Fallback for older browsers
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+
+  // OpenGraph (How it looks when shared on WhatsApp/LinkedIn/Twitter)
+  openGraph: {
+    title: "Teriaq Management - ترياق",
+    description: "The ultimate dashboard for modern healthcare management.",
+    url: "https://your-domain.com", // Replace with your actual URL
+    siteName: "Teriaq",
+    images: [
+      {
+        url: "/og-image.png", // Recommended: 1200x630px image
+        width: 1200,
+        height: 630,
+        alt: "Teriaq Management Dashboard Preview",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+
+  // Twitter/X Card
+  twitter: {
+    card: "summary_large_image",
+    title: "Teriaq Management | Healthcare Dashboard",
+    description: "Empowering healthcare providers with data-driven insights.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default async function RootLayout({

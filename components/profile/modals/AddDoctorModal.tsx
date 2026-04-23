@@ -35,7 +35,7 @@ export default function AddDoctorModal({
   const [schedules, setSchedules] = useState<Schedule[]>([
     { day: "", start_time: "", end_time: "" }
   ]);
-  
+
   const [unregisteredData, setUnregisteredData] = useState({
     full_name: "",
     specialist_name: "",
@@ -45,7 +45,7 @@ export default function AddDoctorModal({
     profile_image: "",
     license_document: "",
   });
-  
+
   const [loading, setLoading] = useState(false);
 
   const days = [
@@ -87,23 +87,43 @@ export default function AddDoctorModal({
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const validSchedules = schedules.filter(s => s.day && s.start_time && s.end_time);
       if (doctorType === "registered") {
         if (!registeredDoctorId) {
           toast.error("Please enter doctor ID");
           return;
         }
-        await onAdd({ doctor_type: "registered", doctor_id: parseInt(registeredDoctorId), schedules: validSchedules });
+        const validSchedules = schedules.filter(s => s.day && s.start_time && s.end_time);
+        await onAdd({ 
+          doctor_type: "registered", 
+          doctor_id: parseInt(registeredDoctorId), 
+          schedules: validSchedules 
+        });
       } else {
+        // Unregistered doctor: only personal data, no schedules
         if (!unregisteredData.full_name || !unregisteredData.specialist_name || !unregisteredData.phone_number) {
           toast.error("Please fill required fields");
           return;
         }
-        await onAdd({ ...unregisteredData, doctor_type: "unregistered", schedules: validSchedules });
+        await onAdd({ 
+          ...unregisteredData, 
+          doctor_type: "unregistered"
+          // schedules are intentionally omitted
+        });
       }
-      toast.success("Doctor added successfully");
+      toast.success(doctorType === "registered" ? "Doctor added to team" : "Doctor submitted for approval");
       onOpenChange(false);
+      // Reset form
+      setRegisteredDoctorId("");
       setSchedules([{ day: "", start_time: "", end_time: "" }]);
+      setUnregisteredData({
+        full_name: "",
+        specialist_name: "",
+        phone_number: "",
+        address: "",
+        license_number: "",
+        profile_image: "",
+        license_document: "",
+      });
     } catch (error: any) {
       console.error(error);
       toast.error(error.response?.data?.message || "Failed to add doctor");
@@ -118,23 +138,23 @@ export default function AddDoctorModal({
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-black dark:text-white">Add Doctor to Team</DialogTitle>
         </DialogHeader>
-        
+
         <Tabs value={doctorType} onValueChange={(v) => setDoctorType(v as any)} className="mt-6">
           <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-700 p-1 rounded-2xl h-14">
-            <TabsTrigger 
-              value="registered" 
+            <TabsTrigger
+              value="registered"
               className="rounded-xl h-full data-[state=active]:bg-[#00B0D0] data-[state=active]:shadow-sm data-[state=active]:text-white text-sm font-semibold text-black dark:text-slate-300 hover:text-white dark:hover:text-white transition-all"
             >
               Registered Doctor
             </TabsTrigger>
-            <TabsTrigger 
-              value="unregistered" 
+            <TabsTrigger
+              value="unregistered"
               className="rounded-xl h-full data-[state=active]:bg-[#00B0D0] data-[state=active]:shadow-sm data-[state=active]:text-white text-sm font-semibold text-black dark:text-slate-300 hover:text-white dark:hover:text-white transition-all"
             >
               Add New Doctor
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="registered" className="space-y-4 mt-8">
             <div className="space-y-2">
               <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Doctor ID *</Label>
@@ -147,9 +167,8 @@ export default function AddDoctorModal({
               />
             </div>
           </TabsContent>
-          
+
           <TabsContent value="unregistered" className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
-            {/* ... all the fields remain the same ... */}
             <div className="space-y-2">
               <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Full Name *</Label>
               <Input
@@ -178,7 +197,7 @@ export default function AddDoctorModal({
               />
             </div>
             <div className="space-y-2">
-              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Phone Number</Label>
+              <Label className="font-bold text-black dark:text-white ml-1 text-sm uppercase tracking-wider">Phone Number *</Label>
               <Input
                 placeholder="Contact number"
                 value={unregisteredData.phone_number}
@@ -225,52 +244,55 @@ export default function AddDoctorModal({
           </TabsContent>
         </Tabs>
 
-        <div className="mt-10">
-          <Label className="text-lg font-bold text-black dark:text-white block mb-4">Working Schedules</Label>
-          {schedules.map((schedule, index) => (
-            <div key={index} className="mb-4 p-5 bg-slate-50/50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700 rounded-[1.5rem] relative">
-              {schedules.length > 1 && (
-                <button onClick={() => removeSchedule(index)} className="absolute top-4 right-4 text-black dark:text-slate-400 hover:text-red-600 transition-colors">
-                  <IconTrash size={18} className="text-black dark:text-slate-400" />
-                </button>
-              )}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">Day</Label>
-                  <select
-                    value={schedule.day}
-                    onChange={(e) => updateSchedule(index, "day", e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#00B0D0]/20 outline-none h-11 text-sm text-black dark:text-white"
-                  >
-                    <option value="">Select day</option>
-                    {days.map(day => <option key={day.value} value={day.value}>{day.label}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">Start</Label>
-                  <Input 
-                    type="time" 
-                    value={schedule.start_time} 
-                    onChange={(e) => updateSchedule(index, "start_time", e.target.value)} 
-                    className="bg-white dark:bg-slate-800 rounded-xl h-11 text-black dark:text-white"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">End</Label>
-                  <Input 
-                    type="time" 
-                    value={schedule.end_time} 
-                    onChange={(e) => updateSchedule(index, "end_time", e.target.value)} 
-                    className="bg-white dark:bg-slate-800 rounded-xl h-11 text-black dark:text-white"
-                  />
+        {/* Schedule section only for registered doctors */}
+        {doctorType === "registered" && (
+          <div className="mt-10">
+            <Label className="text-lg font-bold text-black dark:text-white block mb-4">Working Schedules</Label>
+            {schedules.map((schedule, index) => (
+              <div key={index} className="mb-4 p-5 bg-slate-50/50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700 rounded-[1.5rem] relative">
+                {schedules.length > 1 && (
+                  <button onClick={() => removeSchedule(index)} className="absolute top-4 right-4 text-black dark:text-slate-400 hover:text-red-600 transition-colors">
+                    <IconTrash size={18} className="text-black dark:text-slate-400" />
+                  </button>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">Day</Label>
+                    <select
+                      value={schedule.day}
+                      onChange={(e) => updateSchedule(index, "day", e.target.value)}
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#00B0D0]/20 outline-none h-11 text-sm text-black dark:text-white"
+                    >
+                      <option value="">Select day</option>
+                      {days.map(day => <option key={day.value} value={day.value}>{day.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">Start</Label>
+                    <Input
+                      type="time"
+                      value={schedule.start_time}
+                      onChange={(e) => updateSchedule(index, "start_time", e.target.value)}
+                      className="bg-white dark:bg-slate-800 rounded-xl h-11 text-black dark:text-white"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase text-black dark:text-slate-400">End</Label>
+                    <Input
+                      type="time"
+                      value={schedule.end_time}
+                      onChange={(e) => updateSchedule(index, "end_time", e.target.value)}
+                      className="bg-white dark:bg-slate-800 rounded-xl h-11 text-black dark:text-white"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-          <Button variant="outline" onClick={addSchedule} className="w-full border-dashed border-2 rounded-2xl py-7 text-black dark:text-slate-300 hover:text-[#00B0D0] hover:border-[#00B0D0] bg-white dark:bg-slate-800 transition-colors">
-            <IconPlus size={20} className="mr-2 text-black dark:text-slate-300" /> Add Another Shift
-          </Button>
-        </div>
+            ))}
+            <Button variant="outline" onClick={addSchedule} className="w-full border-dashed border-2 rounded-2xl py-7 text-black dark:text-slate-300 hover:text-[#00B0D0] hover:border-[#00B0D0] bg-white dark:bg-slate-800 transition-colors">
+              <IconPlus size={20} className="mr-2 text-black dark:text-slate-300" /> Add Another Shift
+            </Button>
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 mt-10">
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl px-8 h-12 text-black dark:text-slate-300 font-bold hover:text-slate-700 dark:hover:text-white">

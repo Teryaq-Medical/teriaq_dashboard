@@ -64,6 +64,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -73,6 +80,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Entities } from "@/services/api.services";
+import api from "@/services/api";
 
 interface DataTableProps {
   data: any[];
@@ -177,7 +185,8 @@ export function DataTable({
         ...baseFields,
         is_verified: entity.is_verified || false,
         allow_online_booking: entity.allow_online_booking || false,
-        specialist: entity.specialist?.id || "",
+        // For un-doctors, we store assignments in local state to track changes
+        assignments: entity.assignments || [],
       });
     } else {
       setEditForm(baseFields);
@@ -191,41 +200,56 @@ export function DataTable({
     setSubmitting(true);
 
     try {
-      let payload: any = {};
+      // 1. Update UnregisteredDoctor fields (full_name, phone, address, is_verified, allow_online_booking)
+      const doctorPayload: any = {};
+      let doctorChanged = false;
 
-      if (isDoctorLike) {
-        payload = {
-          full_name: editForm.name,
-          phone_number: editForm.phone,
-          address: editForm.address,
-          email: editForm.email,
-          description: editForm.description,
-          is_verified: editForm.is_verified,
-        };
-        if (entityType === "un-doctors") {
-          payload.allow_online_booking = editForm.allow_online_booking;
-        }
-        if (editForm.specialist) {
-          payload.specialist_id = editForm.specialist;
-        }
-      } else {
-        payload = {
-          name: editForm.name,
-          address: editForm.address,
-          phone: editForm.phone,
-          email: editForm.email,
-          description: editForm.description,
-        };
+      if (editForm.name !== editingEntity.full_name) {
+        doctorPayload.full_name = editForm.name;
+        doctorChanged = true;
+      }
+      if (editForm.phone !== editingEntity.phone_number) {
+        doctorPayload.phone_number = editForm.phone;
+        doctorChanged = true;
+      }
+      if (editForm.address !== editingEntity.address) {
+        doctorPayload.address = editForm.address;
+        doctorChanged = true;
+      }
+      if (editForm.is_verified !== editingEntity.is_verified) {
+        doctorPayload.is_verified = editForm.is_verified;
+        doctorChanged = true;
+      }
+      if (
+        entityType === "un-doctors" &&
+        editForm.allow_online_booking !== editingEntity.allow_online_booking
+      ) {
+        doctorPayload.allow_online_booking = editForm.allow_online_booking;
+        doctorChanged = true;
       }
 
-      await Entities.updateEntityBasicInfo(
-        entityType,
-        editingEntity.id,
-        payload,
-      );
+      if (doctorChanged) {
+        await api.patch(`/un-doctors/${editingEntity.id}/`, doctorPayload);
+      }
+
+      // 2. Update assignment statuses (for un-doctors only)
+      if (entityType === "un-doctors" && editForm.assignments) {
+        const originalAssignments = editingEntity.assignments || [];
+        for (const updatedAssignment of editForm.assignments) {
+          const original = originalAssignments.find(
+            (a: any) => a.id === updatedAssignment.id,
+          );
+          if (original && original.status !== updatedAssignment.status) {
+            await api.patch("/doctor-assignments/update-status/", {
+              assignment_id: updatedAssignment.id,
+              status: updatedAssignment.status,
+            });
+          }
+        }
+      }
+
       toast.success("Entity updated successfully.");
       setEditModalOpen(false);
-
       if (onRefresh) {
         onRefresh();
       } else {
@@ -234,20 +258,12 @@ export function DataTable({
             item.id === editingEntity.id
               ? {
                   ...item,
-                  ...(isDoctorLike
-                    ? {
-                        full_name: editForm.name,
-                        phone_number: editForm.phone,
-                        is_verified: editForm.is_verified,
-                        allow_online_booking: editForm.allow_online_booking,
-                      }
-                    : {
-                        name: editForm.name,
-                        phone: editForm.phone,
-                      }),
+                  full_name: editForm.name,
+                  phone_number: editForm.phone,
                   address: editForm.address,
-                  email: editForm.email,
-                  description: editForm.description,
+                  is_verified: editForm.is_verified,
+                  allow_online_booking: editForm.allow_online_booking,
+                  assignments: editForm.assignments,
                 }
               : item,
           ),
@@ -255,7 +271,7 @@ export function DataTable({
       }
     } catch (error: any) {
       console.error("Update error:", error);
-      toast.error(error.response?.data?.message || "Failed to update entity.");
+      toast.error(error.response?.data?.error || "Failed to update entity.");
     } finally {
       setSubmitting(false);
     }
@@ -296,7 +312,6 @@ export function DataTable({
       },
     ];
 
-    // Image/Avatar column
     baseColumns.push({
       id: "image",
       header: "",
@@ -331,7 +346,6 @@ export function DataTable({
       },
     });
 
-    // Name column
     baseColumns.push({
       accessorKey: isDoctorLike ? "full_name" : "name",
       header: "Name",
@@ -348,7 +362,6 @@ export function DataTable({
       },
     });
 
-    // Specialist column (doctors/un-doctors)
     if (isDoctorLike) {
       baseColumns.push({
         accessorKey: "specialist",
@@ -364,7 +377,6 @@ export function DataTable({
       });
     }
 
-    // Email column (clinics, hospitals, labs)
     if (isClinic || isHospital || isLab) {
       baseColumns.push({
         accessorKey: "email",
@@ -378,7 +390,6 @@ export function DataTable({
       });
     }
 
-    // Phone column
     baseColumns.push({
       accessorKey: isDoctorLike ? "phone_number" : "phone",
       header: "Phone",
@@ -394,7 +405,6 @@ export function DataTable({
       },
     });
 
-    // Address column
     baseColumns.push({
       accessorKey: "address",
       header: "Address",
@@ -405,7 +415,6 @@ export function DataTable({
       ),
     });
 
-    // License column (doctors/un-doctors) with URL fix
     if (isDoctorLike) {
       baseColumns.push({
         id: "license",
@@ -418,25 +427,16 @@ export function DataTable({
           if (licenseDoc) {
             if (typeof licenseDoc === "string") {
               const rawStr = licenseDoc.trim();
-
-              // 1. Check if the string CONTAINS a protocol (http:/ or https:/) anywhere
               const protocolMatch = rawStr.match(/https?:\/+/);
-
               if (protocolMatch) {
-                // It's a full URL (possibly mangled). Extract from the start of the protocol.
                 const startIndex = rawStr.indexOf(protocolMatch[0]);
                 const extractedUrl = rawStr.substring(startIndex);
-
-                // Fix malformed URLs like "http:/res.cloudinary..." -> "http://res.cloudinary..."
                 docUrl = extractedUrl.replace(/^(https?):\/(?!\/)/, "$1://");
               } else {
-                // 2. It's just a public ID; use the Cloudinary base URL
-                // We also strip "image/upload/" if it exists at the start of the ID to prevent double paths
                 const cleanId = rawStr.replace(/^image\/upload\//, "");
                 docUrl = `https://res.cloudinary.com/drswiflul/image/upload/${cleanId}`;
               }
             } else if (licenseDoc.url) {
-              // Cloudinary object with .url
               docUrl = licenseDoc.url;
             }
           }
@@ -462,7 +462,7 @@ export function DataTable({
         },
       });
     }
-    // Rating column (non-doctor)
+
     if (!isDoctorLike) {
       baseColumns.push({
         accessorKey: "rating",
@@ -486,7 +486,6 @@ export function DataTable({
       });
     }
 
-    // Status column (doctors/un-doctors)
     if (isDoctorLike) {
       baseColumns.push({
         id: "status",
@@ -494,6 +493,7 @@ export function DataTable({
         cell: ({ row }) => {
           const isVerified = row.original.is_verified;
           const allowOnline = row.original.allow_online_booking;
+          const assignments = row.original.assignments || [];
           return (
             <div className="flex flex-col gap-1">
               <Badge
@@ -512,21 +512,56 @@ export function DataTable({
                 {isVerified ? "Verified" : "Pending"}
               </Badge>
               {entityType === "un-doctors" && (
-                <Badge
-                  variant="outline"
-                  className={`gap-1 text-xs ${
-                    allowOnline
-                      ? "bg-blue-500/10 text-blue-500 border-blue-200"
-                      : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {allowOnline ? (
-                    <IconCheck className="size-3" />
+                <>
+                  {assignments.length > 0 ? (
+                    assignments.map((a: any) => (
+                      <Badge
+                        key={a.id}
+                        variant="outline"
+                        className={`gap-1 text-xs ${
+                          a.status === "approved"
+                            ? "bg-green-500/10 text-green-500 border-green-200"
+                            : a.status === "pending"
+                              ? "bg-amber-500/10 text-amber-500 border-amber-200"
+                              : a.status === "rejected"
+                                ? "bg-red-500/10 text-red-500 border-red-200"
+                                : "bg-gray-500/10 text-gray-500 border-gray-200"
+                        }`}
+                      >
+                        {a.status === "approved" ? (
+                          <IconCheck className="size-3" />
+                        ) : a.status === "pending" ? (
+                          <IconLoader className="size-3" />
+                        ) : (
+                          <IconX className="size-3" />
+                        )}
+                        {a.entity_name}: {a.status}
+                      </Badge>
+                    ))
                   ) : (
-                    <IconX className="size-3" />
+                    <Badge
+                      variant="outline"
+                      className="gap-1 text-xs bg-gray-100 text-gray-500"
+                    >
+                      No assignments
+                    </Badge>
                   )}
-                  Online Booking {allowOnline ? "Allowed" : "Not Allowed"}
-                </Badge>
+                  <Badge
+                    variant="outline"
+                    className={`gap-1 text-xs ${
+                      allowOnline
+                        ? "bg-blue-500/10 text-blue-500 border-blue-200"
+                        : "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    {allowOnline ? (
+                      <IconCheck className="size-3" />
+                    ) : (
+                      <IconX className="size-3" />
+                    )}
+                    Online {allowOnline ? "Allowed" : "Not Allowed"}
+                  </Badge>
+                </>
               )}
             </div>
           );
@@ -667,7 +702,7 @@ export function DataTable({
         </div>
       </DndContext>
 
-      {/* Dynamic Edit Modal */}
+      {/* Edit Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-card border-border">
           <DialogHeader>
@@ -739,7 +774,7 @@ export function DataTable({
               />
             </div>
 
-            {/* Description - for clinics, hospitals, labs */}
+            {/* Description - for non-doctor entities */}
             {(isClinic || isHospital || isLab) && (
               <div className="space-y-2">
                 <Label htmlFor="edit-description" className="text-foreground">
@@ -760,9 +795,69 @@ export function DataTable({
             {/* Doctor-specific fields */}
             {isDoctorLike && (
               <>
+                {/* Assignment Statuses - for un-doctors only */}
+                {entityType === "un-doctors" && (
+                  <div className="space-y-3">
+                    <Label className="text-foreground font-medium">
+                      Entity Assignment Statuses
+                    </Label>
+                    {editForm.assignments && editForm.assignments.length > 0 ? (
+                      editForm.assignments.map(
+                        (assignment: any, index: number) => (
+                          <div
+                            key={assignment.id}
+                            className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border"
+                          >
+                            <span className="text-sm font-medium text-foreground min-w-[120px]">
+                              {assignment.entity_name}
+                            </span>
+                            <Select
+                              value={assignment.status}
+                              onValueChange={(value) => {
+                                const newAssignments = [
+                                  ...editForm.assignments,
+                                ];
+                                newAssignments[index] = {
+                                  ...newAssignments[index],
+                                  status: value,
+                                };
+                                setEditForm({
+                                  ...editForm,
+                                  assignments: newAssignments,
+                                });
+                              }}
+                            >
+                              <SelectTrigger className="w-[140px] rounded-xl bg-background">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="approved">
+                                  Approved
+                                </SelectItem>
+                                <SelectItem value="rejected">
+                                  Rejected
+                                </SelectItem>
+                                <SelectItem value="inactive">
+                                  Inactive
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        ),
+                      )
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">
+                        No assignments found for this doctor.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Specialist */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-specialist" className="text-foreground">
-                    Specialization
+                    Specialist ID
                   </Label>
                   <Input
                     id="edit-specialist"
@@ -774,10 +869,11 @@ export function DataTable({
                     className="rounded-xl bg-background border-border"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Enter specialist ID (future: dropdown)
+                    Enter specialist ID (future improvement: dropdown)
                   </p>
                 </div>
 
+                {/* Verified Checkbox */}
                 <div className="flex items-center space-x-2 pt-2">
                   <Checkbox
                     id="edit-is_verified"
@@ -794,6 +890,7 @@ export function DataTable({
                   </Label>
                 </div>
 
+                {/* Allow Online Booking (un-doctors only) */}
                 {entityType === "un-doctors" && (
                   <div className="flex items-center space-x-2 pt-2">
                     <Checkbox

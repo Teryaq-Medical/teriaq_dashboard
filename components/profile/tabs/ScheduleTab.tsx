@@ -41,7 +41,7 @@ export default function ScheduleTab({
   };
 
   const groupedData = {
-    doctor: dataArray.filter((a: any) => a.entity_type === "doctor"),
+    doctor: dataArray.filter((a: any) => a.entity_type === "doctor" || a.entity_type === "individual"),
     hospital: dataArray.filter((a: any) => a.entity_type === "hospital"),
     clinic: dataArray.filter((a: any) => a.entity_type === "clinic"),
   };
@@ -51,7 +51,7 @@ export default function ScheduleTab({
       {assignmentsList.length > 0 ? (
         assignmentsList.map((assignment) => (
           <div key={assignment.id} className="space-y-3">
-            {assignment.entity_type !== "doctor" && (
+            {assignment.entity_type !== "doctor" && assignment.entity_type !== "individual" && (
               <div className="flex items-center gap-3 px-2 pb-2 border-b border-slate-100 dark:border-slate-700">
                 <div className="h-6 w-1 bg-gradient-to-b from-[#00B0D0] to-cyan-400 rounded-full" />
                 <div className="flex items-center gap-2">
@@ -65,7 +65,7 @@ export default function ScheduleTab({
                   <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
                     {assignment.doctor?.full_name ||
                      assignment.unregistered_doctor?.full_name ||
-                     assignment.entity_type === "hospital" ? "Hospital Assignment" : "Clinic Assignment"}
+                     (assignment.entity_type === "hospital" ? "Hospital Assignment" : "Clinic Assignment")}
                   </h4>
                 </div>
               </div>
@@ -76,12 +76,13 @@ export default function ScheduleTab({
                   key={schedule.id}
                   className="group relative overflow-hidden rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:border-[#00B0D0]/30"
                 >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-[#00B0D0]/5 to-transparent rounded-bl-3xl" />
+                  {/* Decorative background - pointer-events-none prevents blocking clicks */}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-[#00B0D0]/5 to-transparent rounded-bl-3xl pointer-events-none" />
                   <div className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className="relative">
-                          <div className="absolute inset-0 bg-[#00B0D0]/20 rounded-xl blur-sm" />
+                          <div className="absolute inset-0 bg-[#00B0D0]/20 rounded-xl blur-sm pointer-events-none" />
                           <div className="relative size-12 bg-gradient-to-br from-[#00B0D0] to-cyan-500 rounded-xl flex items-center justify-center shadow-md">
                             <IconCalendar size={22} className="text-white" />
                           </div>
@@ -101,7 +102,7 @@ export default function ScheduleTab({
                       {isOwner && (
                         <button
                           onClick={() => onRemoveSchedule(schedule.id)}
-                          className="p-1.5 text-slate-300 dark:text-slate-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-all duration-200"
+                          className="relative z-10 p-1.5 text-slate-300 dark:text-slate-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-all duration-200"
                         >
                           <IconTrash size={16} />
                         </button>

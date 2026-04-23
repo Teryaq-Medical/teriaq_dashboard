@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {

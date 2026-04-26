@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-const is_production = false;
+const is_production = true;
 
 const api = axios.create({
   baseURL: is_production

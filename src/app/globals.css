@@ -132,3 +132,17 @@
     @apply bg-background text-foreground overscroll-none;
   }
 }
+
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Optional: use an Arabic-friendly font */
+[dir="rtl"] body {
+  font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+}
+
+[dir="ltr"] body {
+  font-family: var(--font-geist-sans);
+}

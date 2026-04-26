@@ -1,0 +1,549 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "doctors": "Doctors",
+    "hospitals": "Hospitals",
+    "settings": "Settings",
+    "language": "Language",
+    "search": "Search",
+    "save": "Save",
+    "cancel": "Cancel",
+    "signIn": "Sign In"
+  },
+  "landing": {
+    "hero": {
+      "title": "Healthcare Management",
+      "titleHighlight": " Simplified",
+      "description": "Streamline your hospital, clinic, or lab operations. Manage appointments, staff, patients, and analytics – all in one place.",
+      "getStarted": "Get Started",
+      "learnMore": "Learn More"
+    },
+    "features": {
+      "title": "Everything you need to succeed",
+      "description": "Powerful features designed for modern healthcare providers.",
+      "secureManagement": {
+        "title": "Secure Management",
+        "description": "Role-based access control and encrypted data storage."
+      },
+      "smartScheduling": {
+        "title": "Smart Scheduling",
+        "description": "Efficient appointment booking and resource allocation."
+      }
+    },
+    "cta": {
+      "title": "Ready to transform your healthcare management?",
+      "description": "Join hundreds of healthcare professionals using Teriaq to streamline their daily operations.",
+      "startJourney": "Start Your Journey"
+    },
+    "footer": {
+      "copyright": "© {year} Teriaq Management. All rights reserved."
+    }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "allClinics": "All Clinics",
+    "allHospitals": "All Hospitals",
+    "allLabs": "All Labs",
+    "allDoctors": "All Doctors",
+    "unregisteredDoctors": "Unregistered Doctors",
+    "lifecycle": "Lifecycle",
+    "myBookings": "My Bookings",
+    "addSpecialists": "Add Specialists",
+    "addDoctors": "Add Doctors",
+    "mySchedule": "My Schedule"
+  },
+  "dashboard": {
+    "admin": {
+      "totalDoctors": "Total Doctors",
+      "totalHospitals": "Total Hospitals",
+      "totalClinics": "Total Clinics",
+      "totalLabs": "Total Labs",
+      "appointments": "Appointments",
+      "labBookings": "Lab Bookings",
+      "trendingUp": "Trending up",
+      "trendingDown": "Trending down",
+      "thisPeriod": "this period",
+      "total": "Total {label}"
+    },
+    "doctor": {
+      "totalAppointments": "Total Appointments",
+      "yourRating": "Your Rating",
+      "upcomingPast": "Your upcoming and past appointments",
+      "patientFeedback": "Based on patient feedback"
+    },
+    "hospitalClinic": {
+      "specialists": "Specialists",
+      "doctorsOnTeam": "Doctors on Team",
+      "appointments": "Appointments"
+    },
+    "lab": {
+      "totalLabBookings": "Total Lab Bookings",
+      "pendingReviews": "Pending Reviews"
+    },
+    "chart": {
+      "appointmentsTrend": "Appointments Trend",
+      "labBookingsTrend": "Lab Bookings Trend",
+      "totalForLast": "Total for the last",
+      "last3Months": "Last 3 months",
+      "last30Days": "Last 30 days",
+      "last7Days": "Last 7 days",
+      "appointments": "Appointments",
+      "labBookings": "Lab Bookings",
+      "loading": "Loading chart...",
+      "noData": "No data available"
+    }
+  },
+  "entities": {
+    "manage": "Manage",
+    "addNew": "Add New",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating...",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "deleteConfirmation": "Are you sure you want to delete this {entity}?",
+    "deleteSuccess": "Entity deleted successfully.",
+    "addSuccessDoctor": "Doctor created successfully.",
+    "addSuccessOther": "{entity} created successfully.",
+    "failedToLoad": "Failed to load {entity}.",
+    "failedToCreate": "Failed to create entity.",
+    "failedToDelete": "Failed to delete entity.",
+    "userAccount": "User Account",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "address": "Address",
+    "doctorDetails": "Doctor Details",
+    "entityDetails": "{entity} Details",
+    "licenseNumber": "License Number",
+    "specialization": "Specialization",
+    "profileImage": "Profile Image",
+    "licenseDocument": "License Document",
+    "markAsVerified": "Mark as Verified",
+    "verifiedHelp": "(Verified doctors appear as approved)",
+    "entityName": "Entity Name",
+    "phone": "Phone",
+    "description": "Description",
+    "logoImage": "Logo / Image",
+    "fillAllRequired": "Please fill all required fields (*)"
+  },
+  "table": {
+    "id": "ID",
+    "name": "Name",
+    "specialization": "Specialization",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "license": "License",
+    "viewDocument": "View Document",
+    "rating": "Rating",
+    "status": "Status",
+    "verified": "Verified",
+    "pending": "Pending",
+    "noAssignments": "No assignments",
+    "onlineAllowed": "Online Allowed",
+    "onlineNotAllowed": "Online Not Allowed",
+    "assignmentStatus": "Assignment: {status}",
+    "noEntries": "No {entity} entries found.",
+    "editTitle": "Edit {entity} Details",
+    "fullName": "Full Name",
+    "address": "Address",
+    "entityAssignmentStatuses": "Entity Assignment Statuses",
+    "noAssignmentsFound": "No assignments found for this doctor.",
+    "specialistId": "Specialist ID",
+    "specialistIdHelp": "Enter specialist ID (future improvement: dropdown)",
+    "verified": "Verified",
+    "allowOnlineBooking": "Allow Online Booking",
+    "viewProfile": "View Profile",
+    "editDetails": "Edit Details",
+    "delete": "Delete"
+  },
+  "modals": {
+    "addDoctor": {
+      "title": "Add Doctor to Team",
+      "tabs": {
+        "registered": "Registered Doctor",
+        "addNew": "Add New Doctor"
+      },
+      "doctorIdLabel": "Doctor ID *",
+      "fullNameLabel": "Full Name *",
+      "specializationLabel": "Specialization *",
+      "addressLabel": "Address *",
+      "phoneLabel": "Phone Number *",
+      "licenseNumberLabel": "License Number",
+      "profileImageLabel": "Profile Image",
+      "licenseDocLabel": "License Document",
+      "verificationNote": "This professional will require verification before going live.",
+      "schedulesTitle": "Working Schedules",
+      "day": "Day",
+      "start": "Start",
+      "end": "End",
+      "selectDay": "Select day",
+      "addAnotherShift": "Add Another Shift",
+      "cancel": "Cancel",
+      "confirmSave": "Confirm & Save",
+      "days": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      },
+      "errors": {
+        "doctorIdRequired": "Please enter doctor ID",
+        "requiredFields": "Please fill required fields",
+        "generic": "Failed to add doctor"
+      },
+      "success": {
+        "registered": "Doctor added to team",
+        "unregistered": "Doctor submitted for approval"
+      }
+    },
+    "certificate": {
+      "title": "Add Certificate",
+      "certificateNameLabel": "Certificate Name",
+      "issuingEntityLabel": "Issuing Entity",
+      "addButton": "Add Certificate",
+      "errors": {
+        "nameRequired": "Certificate name is required",
+        "entityRequired": "Issuing entity is required",
+        "generic": "Failed to add certificate"
+      },
+      "success": {
+        "added": "Certificate added successfully"
+      }
+    },
+    "insurance": {
+      "title": "Add Insurance Provider",
+      "providerNameLabel": "Provider Name",
+      "planStatusLabel": "Plan Status",
+      "status": {
+        "full": "Full Coverage",
+        "standard": "Standard",
+        "partial": "Partial",
+        "expired": "Expired"
+      },
+      "connectButton": "Connect Provider",
+      "errors": {
+        "providerRequired": "Provider name is required",
+        "generic": "Failed to add insurance provider"
+      },
+      "success": {
+        "added": "Insurance provider added successfully"
+      }
+    },
+    "schedule": {
+      "title": "Add Schedule Slot",
+      "dayOfWeekLabel": "Day of Week *",
+      "startTimeLabel": "Start Time *",
+      "endTimeLabel": "End Time *",
+      "specificDateLabel": "Specific Date (Optional)",
+      "selectDay": "Select day",
+      "saveButton": "Save Schedule Slot",
+      "days": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      },
+      "errors": {
+        "dayRequired": "Please select a day",
+        "timeRequired": "Please enter start and end times",
+        "generic": "Failed to add schedule"
+      },
+      "success": {
+        "added": "Schedule added successfully"
+      }
+    },
+    "specialist": {
+      "title": "Add Medical Specialty",
+      "specialtyNameLabel": "Specialty Name",
+      "addButton": "Add Specialty",
+      "errors": {
+        "nameRequired": "Specialty name is required",
+        "generic": "Failed to add specialty"
+      },
+      "success": {
+        "added": "Specialty added successfully"
+      }
+    },
+    "about": {
+      "title": "About / Biography",
+      "placeholder": "Introduce yourself to patients...",
+      "saveButton": "Update Biography",
+      "errors": {
+        "generic": "Failed to update biography"
+      },
+      "success": {
+        "updated": "Biography updated successfully"
+      }
+    },
+    "basicInfo": {
+      "title": "Basic Information",
+      "profileImageLabel": "Profile Image",
+      "fullNameLabel": "Full Display Name",
+      "addressLabel": "Practice Location",
+      "phoneLabel": "Phone Number",
+      "emailLabel": "Email Address",
+      "saveButton": "Save Profile Data",
+      "errors": {
+        "generic": "Failed to update profile"
+      },
+      "success": {
+        "updated": "Profile information updated successfully"
+      }
+    }
+  },
+  "bookings": {
+    "filters": {
+      "all": "All Bookings",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "noShow": "No Show"
+    },
+    "header": {
+      "all": "All Recent Appointments",
+      "filtered": "{filter} Appointments"
+    },
+    "searchPlaceholder": "Search by patient, doctor, or code...",
+    "patient": "Patient",
+    "code": "Code",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "noShow": "No Show"
+    },
+    "actions": {
+      "confirm": "Confirm",
+      "complete": "Complete"
+    },
+    "confirmModal": {
+      "title": "Confirm Booking",
+      "message": "Are you sure you want to confirm this booking? Once confirmed, the patient will receive a confirmation.",
+      "cancel": "Cancel",
+      "confirm": "Yes, Confirm"
+    },
+    "completeModal": {
+      "title": "Complete Booking",
+      "message": "Please enter the booking code provided by the patient to mark this booking as completed.",
+      "codePlaceholder": "Enter booking code",
+      "codeRequired": "Please enter the booking code provided by the patient.",
+      "invalidCode": "Invalid booking code or failed to complete.",
+      "cancel": "Cancel",
+      "complete": "Complete",
+      "processing": "Processing..."
+    },
+    "empty": "No matches found for your criteria."
+  },
+  "certificates": {
+    "empty": {
+      "title": "No certificates added",
+      "description": "Add professional certificates and licenses."
+    },
+    "addButton": "Add Certificate"
+  },
+  "insurance": {
+    "empty": {
+      "title": "No insurance providers listed",
+      "description": "Add accepted insurance plans."
+    },
+    "addButton": "Add Insurance",
+    "status": {
+      "full": "Full Coverage",
+      "standard": "Standard",
+      "partial": "Partial",
+      "expired": "Expired"
+    }
+  },
+  "overview": {
+    "title": "Professional Overview",
+    "edit": "Edit",
+    "noDescription": "No description added yet.",
+    "addDescription": "+ Add a description"
+  },
+  "schedule": {
+    "title": "Working Hours",
+    "subtitle": "Manage your availability and working schedules",
+    "addButton": "Add New Schedule",
+    "addFirstSchedule": "Add Your First Schedule",
+    "emptyTitle": "No Working Hours Yet",
+    "emptyDescription": "Add your working hours to let patients know when you're available.",
+    "tabs": {
+      "personal": "Personal",
+      "hospitals": "Hospitals",
+      "clinics": "Clinics"
+    },
+    "hospitalAssignment": "Hospital Assignment",
+    "clinicAssignment": "Clinic Assignment",
+    "noSchedules": "No schedules found",
+    "noSchedulesHint": "No working hours added in this category",
+    "days": {
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday",
+      "sun": "Sunday"
+    }
+  },
+  "specialists": {
+    "emptyTitle": "No specialists added yet",
+    "emptyDescription": "Add medical specialties to help patients find you.",
+    "addButton": "Add Specialist",
+    "specialtiesCount": "Specialties ({count})",
+    "addNew": "Add New"
+  },
+  "team": {
+    "searchPlaceholder": "Search doctor or specialty...",
+    "filterAllStaff": "All Staff",
+    "allDoctors": "All Doctors ({count})",
+    "registeredDoctors": "Registered ({count})",
+    "unregisteredDoctors": "Unregistered ({count})",
+    "addDoctor": "Add Doctor",
+    "unknownDoctor": "Unknown Doctor",
+    "generalSpecialist": "General Specialist",
+    "pending": "Pending",
+    "approved": "Approved",
+    "noDoctors": "No doctors found.",
+    "scheduleDays": {
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday",
+      "sun": "Sunday"
+    },
+    "errors": {
+      "scheduleLoadFailed": "Failed to load schedules",
+      "scheduleAtLeastOne": "Add at least one valid schedule",
+      "scheduleSaveFailed": "Failed to save schedules",
+      "doctorUpdateFailed": "Failed to update doctor"
+    },
+    "success": {
+      "schedulesSaved": "Schedules saved!",
+      "doctorUpdated": "Doctor data updated!"
+    },
+    "scheduleModal": {
+      "title": "Manage Schedules",
+      "workingSchedules": "Working Schedules",
+      "addSchedule": "Add Schedule",
+      "loading": "Loading schedules…",
+      "noSchedules": "No schedules yet.",
+      "day": "Day",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "date": "Date",
+      "select": "Select",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveAll": "Save All Schedules"
+    },
+    "editModal": {
+      "title": "Edit Doctor & Schedules",
+      "personalDetails": "Personal Details",
+      "schedules": "Schedules",
+      "fullName": "Full Name",
+      "phoneNumber": "Phone Number",
+      "address": "Address",
+      "workingSchedules": "Working Schedules",
+      "add": "Add",
+      "loading": "Loading schedules…",
+      "noSchedules": "No schedules yet.",
+      "day": "Day",
+      "start": "Start",
+      "end": "End",
+      "date": "Date",
+      "select": "Select",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveAll": "Save All Changes"
+    }
+  },
+  "components": {
+    "doctorSpecialist": {
+      "specializationLabel": "Specialization",
+      "defaultText": "General Doctor",
+      "clickToAdd": "Click to add specialization",
+      "editLabel": "Edit Specialization",
+      "cancel": "Cancel",
+      "save": "Save",
+      "errors": {
+        "nameRequired": "Specialization name is required",
+        "generic": "Failed to update specialization"
+      },
+      "success": {
+        "updated": "Specialization updated successfully"
+      }
+    }
+  },
+  "profile": {
+    "errors": {
+      "loadingTimeout": "Loading took too long. Please refresh.",
+      "updateSpecialistFailed": "Failed to update specialization",
+      "confirmAppointmentFailed": "Could not confirm appointment.",
+      "completeAppointmentFailed": "Invalid booking code or failed to complete.",
+      "loadProfileFailed": "Failed to load profile data.",
+      "updateBasicInfoFailed": "Failed to update basic information.",
+      "updateAboutFailed": "Failed to update about information.",
+      "addDoctorFailed": "Failed to add doctor.",
+      "removeDoctorFailed": "Failed to remove doctor.",
+      "labSpecialistNotImplemented": "Adding/removing specialists for labs is not yet implemented.",
+      "addSpecialistFailed": "Failed to update specialist.",
+      "removeSpecialistFailed": "Failed to remove specialist.",
+      "addInsuranceFailed": "Failed to add insurance",
+      "removeInsuranceFailed": "Failed to remove insurance",
+      "addCertificateFailed": "Failed to add certificate",
+      "removeCertificateFailed": "Failed to remove certificate",
+      "addScheduleFailed": "Failed to add schedule",
+      "removeScheduleFailed": "Failed to remove schedule",
+      "confirmLabBookingFailed": "Could not confirm booking.",
+      "completeLabBookingFailed": "Invalid booking code or failed to complete."
+    },
+    "notFound": "Profile data not found.",
+    "unnamed": "Unnamed"
+  },
+  "profileTabs": {
+  "overview": "Overview",
+  "team": "Team",
+  "bookings": "Bookings",
+  "specialists": "Specialists",
+  "schedule": "Schedule",
+  "insurance": "Insurance",
+  "certs": "Certificates",
+  "loading": "Loading..."
+},
+"profileSidebar": {
+  "verified": "Verified",
+  "pending": "Pending",
+  "rating": "Rating",
+  "noBio": "No biography available",
+  "location": "Location",
+  "phone": "Phone",
+  "email": "Email",
+  "notAvailable": "N/A"
+},
+"profileStats": {
+  "totalBookings": "Total Bookings",
+  "completed": "Completed",
+  "rating": "Clinic Rating",
+  "overall": "Overall",
+  "success": "Success",
+  "global": "Global"
+},
+"profileHeader": {
+  "brand": "Teriaq Management",
+  "editDetails": "Edit Details",
+  "logout": "Logout"
+}
+}

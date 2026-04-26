@@ -1,0 +1,549 @@
+{
+  "common": {
+    "dashboard": "لوحة التحكم",
+    "doctors": "الأطباء",
+    "hospitals": "المستشفيات",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "search": "بحث",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "signIn": "تسجيل الدخول"
+  },
+  "landing": {
+    "hero": {
+      "title": "إدارة الرعاية الصحية",
+      "titleHighlight": " بكل سهولة",
+      "description": "تبسيط عمليات المستشفى والعيادة والمختبر. إدارة المواعيد والموظفين والمرضى والتحليلات – كل ذلك في مكان واحد.",
+      "getStarted": "ابدأ الآن",
+      "learnMore": "اعرف المزيد"
+    },
+    "features": {
+      "title": "كل ما تحتاجه للنجاح",
+      "description": "ميزات قوية مصممة لمقدمي الرعاية الصحية الحديثين.",
+      "secureManagement": {
+        "title": "إدارة آمنة",
+        "description": "تحكم في الوصول على أساس الأدوار وتخزين مشفر للبيانات."
+      },
+      "smartScheduling": {
+        "title": "جدولة ذكية",
+        "description": "حجز مواعيد فعال وتخصيص الموارد."
+      }
+    },
+    "cta": {
+      "title": "هل أنت مستعد لتحويل إدارة الرعاية الصحية لديك؟",
+      "description": "انضم إلى مئات من المتخصصين في الرعاية الصحية الذين يستخدمون ترياق لتبسيط عملياتهم اليومية.",
+      "startJourney": "ابدأ رحلتك"
+    },
+    "footer": {
+      "copyright": "© {year} ترياق. جميع الحقوق محفوظة."
+    }
+  },
+  "sidebar": {
+    "dashboard": "لوحة التحكم",
+    "allClinics": "كل العيادات",
+    "allHospitals": "كل المستشفيات",
+    "allLabs": "كل المعامل",
+    "allDoctors": "كل الأطباء",
+    "unregisteredDoctors": "أطباء غير مسجلين",
+    "lifecycle": "دورة الحياة",
+    "myBookings": "حجوزاتي",
+    "addSpecialists": "إضافة تخصصات",
+    "addDoctors": "إضافة أطباء",
+    "mySchedule": "جدولي"
+  },
+  "dashboard": {
+    "admin": {
+      "totalDoctors": "إجمالي الأطباء",
+      "totalHospitals": "إجمالي المستشفيات",
+      "totalClinics": "إجمالي العيادات",
+      "totalLabs": "إجمالي المعامل",
+      "appointments": "المواعيد",
+      "labBookings": "حجوزات المعامل",
+      "trendingUp": "ارتفاع",
+      "trendingDown": "انخفاض",
+      "thisPeriod": "هذه الفترة",
+      "total": "إجمالي {label}"
+    },
+    "doctor": {
+      "totalAppointments": "إجمالي المواعيد",
+      "yourRating": "تقييمك",
+      "upcomingPast": "مواعيدك القادمة والسابقة",
+      "patientFeedback": "بناءً على تقييمات المرضى"
+    },
+    "hospitalClinic": {
+      "specialists": "التخصصات",
+      "doctorsOnTeam": "الأطباء في الفريق",
+      "appointments": "المواعيد"
+    },
+    "lab": {
+      "totalLabBookings": "إجمالي حجوزات المعمل",
+      "pendingReviews": "مراجعات معلقة"
+    },
+    "chart": {
+      "appointmentsTrend": "اتجاه المواعيد",
+      "labBookingsTrend": "اتجاه حجوزات المعامل",
+      "totalForLast": "إجمالي آخر",
+      "last3Months": "آخر 3 أشهر",
+      "last30Days": "آخر 30 يومًا",
+      "last7Days": "آخر 7 أيام",
+      "appointments": "المواعيد",
+      "labBookings": "حجوزات المعامل",
+      "loading": "جاري تحميل الرسم البياني...",
+      "noData": "لا توجد بيانات"
+    }
+  },
+  "entities": {
+    "manage": "إدارة",
+    "addNew": "إضافة جديد",
+    "cancel": "إلغاء",
+    "create": "إنشاء",
+    "creating": "جاري الإنشاء...",
+    "saving": "جاري الحفظ...",
+    "saveChanges": "حفظ التغييرات",
+    "deleteConfirmation": "هل أنت متأكد من حذف هذا {entity}؟",
+    "deleteSuccess": "تم حذف العنصر بنجاح.",
+    "addSuccessDoctor": "تم إنشاء الطبيب بنجاح.",
+    "addSuccessOther": "تم إنشاء {entity} بنجاح.",
+    "failedToLoad": "فشل تحميل {entity}.",
+    "failedToCreate": "فشل إنشاء العنصر.",
+    "failedToDelete": "فشل حذف العنصر.",
+    "userAccount": "حساب المستخدم",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "fullName": "الاسم الكامل",
+    "phoneNumber": "رقم الهاتف",
+    "address": "العنوان",
+    "doctorDetails": "تفاصيل الطبيب",
+    "entityDetails": "تفاصيل {entity}",
+    "licenseNumber": "رقم الترخيص",
+    "specialization": "التخصص",
+    "profileImage": "صورة الملف الشخصي",
+    "licenseDocument": "وثيقة الترخيص",
+    "markAsVerified": "تعليم كموثوق",
+    "verifiedHelp": "(يظهر الأطباء الموثوقون كمعتمدين)",
+    "entityName": "اسم الكيان",
+    "phone": "الهاتف",
+    "description": "الوصف",
+    "logoImage": "شعار / صورة",
+    "fillAllRequired": "يرجى ملء جميع الحقول المطلوبة (*)"
+  },
+  "table": {
+    "id": "الرقم",
+    "name": "الاسم",
+    "specialization": "التخصص",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "address": "العنوان",
+    "license": "الترخيص",
+    "viewDocument": "عرض المستند",
+    "rating": "التقييم",
+    "status": "الحالة",
+    "verified": "موثق",
+    "pending": "قيد الانتظار",
+    "noAssignments": "لا توجد مهمات",
+    "onlineAllowed": "الحجز عبر الإنترنت مسموح",
+    "onlineNotAllowed": "الحجز عبر الإنترنت غير مسموح",
+    "assignmentStatus": "المهمة: {status}",
+    "noEntries": "لا توجد {entity}.",
+    "editTitle": "تعديل {entity}",
+    "fullName": "الاسم الكامل",
+    "address": "العنوان",
+    "entityAssignmentStatuses": "حالات المهمات",
+    "noAssignmentsFound": "لا توجد مهمات لهذا الطبيب.",
+    "specialistId": "معرف التخصص",
+    "specialistIdHelp": "أدخل معرف التخصص (تطوير مستقبلي: قائمة منسدلة)",
+    "verified": "موثق",
+    "allowOnlineBooking": "السماح بالحجز عبر الإنترنت",
+    "viewProfile": "عرض الملف الشخصي",
+    "editDetails": "تعديل التفاصيل",
+    "delete": "حذف"
+  },
+  "modals": {
+    "addDoctor": {
+      "title": "إضافة طبيب للفريق",
+      "tabs": {
+        "registered": "طبيب مسجل",
+        "addNew": "إضافة طبيب جديد"
+      },
+      "doctorIdLabel": "معرف الطبيب *",
+      "fullNameLabel": "الاسم الكامل *",
+      "specializationLabel": "التخصص *",
+      "addressLabel": "العنوان *",
+      "phoneLabel": "رقم الهاتف *",
+      "licenseNumberLabel": "رقم الترخيص",
+      "profileImageLabel": "صورة الملف الشخصي",
+      "licenseDocLabel": "وثيقة الترخيص",
+      "verificationNote": "سيحتاج هذا الطبيب إلى التحقق قبل التفعيل.",
+      "schedulesTitle": "جداول العمل",
+      "day": "اليوم",
+      "start": "البداية",
+      "end": "النهاية",
+      "selectDay": "اختر اليوم",
+      "addAnotherShift": "إضافة وردية أخرى",
+      "cancel": "إلغاء",
+      "confirmSave": "تأكيد وحفظ",
+      "days": {
+        "mon": "الإثنين",
+        "tue": "الثلاثاء",
+        "wed": "الأربعاء",
+        "thu": "الخميس",
+        "fri": "الجمعة",
+        "sat": "السبت",
+        "sun": "الأحد"
+      },
+      "errors": {
+        "doctorIdRequired": "يرجى إدخال معرف الطبيب",
+        "requiredFields": "يرجى ملء الحقول المطلوبة",
+        "generic": "فشل إضافة الطبيب"
+      },
+      "success": {
+        "registered": "تمت إضافة الطبيب للفريق",
+        "unregistered": "تم تقديم الطبيب للموافقة"
+      }
+    },
+    "certificate": {
+      "title": "إضافة شهادة",
+      "certificateNameLabel": "اسم الشهادة",
+      "issuingEntityLabel": "الجهة المصدرة",
+      "addButton": "إضافة الشهادة",
+      "errors": {
+        "nameRequired": "اسم الشهادة مطلوب",
+        "entityRequired": "الجهة المصدرة مطلوبة",
+        "generic": "فشل إضافة الشهادة"
+      },
+      "success": {
+        "added": "تمت إضافة الشهادة بنجاح"
+      }
+    },
+    "insurance": {
+      "title": "إضافة مزود تأمين",
+      "providerNameLabel": "اسم المزود",
+      "planStatusLabel": "حالة الخطة",
+      "status": {
+        "full": "تغطية كاملة",
+        "standard": "عادية",
+        "partial": "جزئية",
+        "expired": "منتهية"
+      },
+      "connectButton": "ربط المزود",
+      "errors": {
+        "providerRequired": "اسم المزود مطلوب",
+        "generic": "فشل إضافة مزود التأمين"
+      },
+      "success": {
+        "added": "تمت إضافة مزود التأمين بنجاح"
+      }
+    },
+    "schedule": {
+      "title": "إضافة موعد",
+      "dayOfWeekLabel": "اليوم *",
+      "startTimeLabel": "وقت البدء *",
+      "endTimeLabel": "وقت الانتهاء *",
+      "specificDateLabel": "تاريخ محدد (اختياري)",
+      "selectDay": "اختر اليوم",
+      "saveButton": "حفظ الموعد",
+      "days": {
+        "mon": "الإثنين",
+        "tue": "الثلاثاء",
+        "wed": "الأربعاء",
+        "thu": "الخميس",
+        "fri": "الجمعة",
+        "sat": "السبت",
+        "sun": "الأحد"
+      },
+      "errors": {
+        "dayRequired": "يرجى اختيار اليوم",
+        "timeRequired": "يرجى إدخال وقت البدء والانتهاء",
+        "generic": "فشل إضافة الموعد"
+      },
+      "success": {
+        "added": "تمت إضافة الموعد بنجاح"
+      }
+    },
+    "specialist": {
+      "title": "إضافة تخصص طبي",
+      "specialtyNameLabel": "اسم التخصص",
+      "addButton": "إضافة التخصص",
+      "errors": {
+        "nameRequired": "اسم التخصص مطلوب",
+        "generic": "فشل إضافة التخصص"
+      },
+      "success": {
+        "added": "تمت إضافة التخصص بنجاح"
+      }
+    },
+    "about": {
+      "title": "نبذة / السيرة الذاتية",
+      "placeholder": "قدم نفسك للمرضى...",
+      "saveButton": "تحديث النبذة",
+      "errors": {
+        "generic": "فشل تحديث النبذة"
+      },
+      "success": {
+        "updated": "تم تحديث النبذة بنجاح"
+      }
+    },
+    "basicInfo": {
+      "title": "المعلومات الأساسية",
+      "profileImageLabel": "الصورة الشخصية",
+      "fullNameLabel": "الاسم الكامل",
+      "addressLabel": "العنوان",
+      "phoneLabel": "رقم الهاتف",
+      "emailLabel": "البريد الإلكتروني",
+      "saveButton": "حفظ البيانات",
+      "errors": {
+        "generic": "فشل تحديث الملف الشخصي"
+      },
+      "success": {
+        "updated": "تم تحديث المعلومات بنجاح"
+      }
+    }
+  },
+  "bookings": {
+    "filters": {
+      "all": "كل الحجوزات",
+      "confirmed": "مؤكد",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "noShow": "لم يحضر"
+    },
+    "header": {
+      "all": "جميع المواعيد الأخيرة",
+      "filtered": "مواعيد {filter}"
+    },
+    "searchPlaceholder": "ابحث عن مريض، طبيب، أو كود...",
+    "patient": "المريض",
+    "code": "الكود",
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "noShow": "لم يحضر"
+    },
+    "actions": {
+      "confirm": "تأكيد",
+      "complete": "إكمال"
+    },
+    "confirmModal": {
+      "title": "تأكيد الحجز",
+      "message": "هل أنت متأكد من تأكيد هذا الحجز؟ عند التأكيد، سيتلقى المريض إشعارًا.",
+      "cancel": "إلغاء",
+      "confirm": "نعم، تأكيد"
+    },
+    "completeModal": {
+      "title": "إكمال الحجز",
+      "message": "يرجى إدخال كود الحجز المقدم من المريض لإكمال الحجز.",
+      "codePlaceholder": "أدخل كود الحجز",
+      "codeRequired": "يرجى إدخال كود الحجز المقدم من المريض.",
+      "invalidCode": "كود الحجز غير صحيح أو فشل الإكمال.",
+      "cancel": "إلغاء",
+      "complete": "إكمال",
+      "processing": "جاري المعالجة..."
+    },
+    "empty": "لا توجد نتائج تطابق بحثك."
+  },
+  "certificates": {
+    "empty": {
+      "title": "لا توجد شهادات مضافة",
+      "description": "أضف الشهادات والتراخيص المهنية."
+    },
+    "addButton": "إضافة شهادة"
+  },
+  "insurance": {
+    "empty": {
+      "title": "لا توجد شركات تأمين",
+      "description": "أضف خطط التأمين المقبولة."
+    },
+    "addButton": "إضافة تأمين",
+    "status": {
+      "full": "تغطية كاملة",
+      "standard": "عادية",
+      "partial": "جزئية",
+      "expired": "منتهية"
+    }
+  },
+  "overview": {
+    "title": "نظرة عامة",
+    "edit": "تعديل",
+    "noDescription": "لا يوجد وصف حتى الآن.",
+    "addDescription": "+ أضف وصفًا"
+  },
+  "schedule": {
+    "title": "ساعات العمل",
+    "subtitle": "إدارة تواجدك وجداول العمل",
+    "addButton": "إضافة جدول جديد",
+    "addFirstSchedule": "أضف جدولك الأول",
+    "emptyTitle": "لا توجد ساعات عمل بعد",
+    "emptyDescription": "أضف ساعات عملك ليعرف المرضى أوقات تواجدك.",
+    "tabs": {
+      "personal": "شخصي",
+      "hospitals": "المستشفيات",
+      "clinics": "العيادات"
+    },
+    "hospitalAssignment": "مهمة مستشفى",
+    "clinicAssignment": "مهمة عيادة",
+    "noSchedules": "لا توجد جداول",
+    "noSchedulesHint": "لا توجد ساعات عمل مضافة في هذه الفئة",
+    "days": {
+      "mon": "الإثنين",
+      "tue": "الثلاثاء",
+      "wed": "الأربعاء",
+      "thu": "الخميس",
+      "fri": "الجمعة",
+      "sat": "السبت",
+      "sun": "الأحد"
+    }
+  },
+  "specialists": {
+    "emptyTitle": "لا توجد تخصصات مضافة بعد",
+    "emptyDescription": "أضف تخصصات طبية ليسهل على المرضى العثور عليك.",
+    "addButton": "أضف تخصص",
+    "specialtiesCount": "التخصصات ({count})",
+    "addNew": "أضف جديد"
+  },
+  "team": {
+    "searchPlaceholder": "ابحث عن طبيب أو تخصص...",
+    "filterAllStaff": "كل الفريق",
+    "allDoctors": "كل الأطباء ({count})",
+    "registeredDoctors": "مسجل ({count})",
+    "unregisteredDoctors": "غير مسجل ({count})",
+    "addDoctor": "أضف طبيب",
+    "unknownDoctor": "طبيب غير معروف",
+    "generalSpecialist": "أخصائي عام",
+    "pending": "قيد الانتظار",
+    "approved": "موافق عليه",
+    "noDoctors": "لم يتم العثور على أطباء.",
+    "scheduleDays": {
+      "mon": "الإثنين",
+      "tue": "الثلاثاء",
+      "wed": "الأربعاء",
+      "thu": "الخميس",
+      "fri": "الجمعة",
+      "sat": "السبت",
+      "sun": "الأحد"
+    },
+    "errors": {
+      "scheduleLoadFailed": "فشل تحميل الجداول",
+      "scheduleAtLeastOne": "أضف جدولًا واحدًا صالحًا على الأقل",
+      "scheduleSaveFailed": "فشل حفظ الجداول",
+      "doctorUpdateFailed": "فشل تحديث بيانات الطبيب"
+    },
+    "success": {
+      "schedulesSaved": "تم حفظ الجداول!",
+      "doctorUpdated": "تم تحديث بيانات الطبيب!"
+    },
+    "scheduleModal": {
+      "title": "إدارة الجداول",
+      "workingSchedules": "جداول العمل",
+      "addSchedule": "أضف جدول",
+      "loading": "جاري تحميل الجداول…",
+      "noSchedules": "لا توجد جداول بعد.",
+      "day": "اليوم",
+      "startTime": "وقت البدء",
+      "endTime": "وقت الانتهاء",
+      "date": "التاريخ",
+      "select": "اختر",
+      "cancel": "إلغاء",
+      "saving": "جاري الحفظ…",
+      "saveAll": "حفظ كل الجداول"
+    },
+    "editModal": {
+      "title": "تعديل الطبيب والجداول",
+      "personalDetails": "البيانات الشخصية",
+      "schedules": "الجداول",
+      "fullName": "الاسم الكامل",
+      "phoneNumber": "رقم الهاتف",
+      "address": "العنوان",
+      "workingSchedules": "جداول العمل",
+      "add": "أضف",
+      "loading": "جاري تحميل الجداول…",
+      "noSchedules": "لا توجد جداول بعد.",
+      "day": "اليوم",
+      "start": "البداية",
+      "end": "النهاية",
+      "date": "التاريخ",
+      "select": "اختر",
+      "cancel": "إلغاء",
+      "saving": "جاري الحفظ…",
+      "saveAll": "حفظ كل التغييرات"
+    }
+  },
+  "components": {
+    "doctorSpecialist": {
+      "specializationLabel": "التخصص",
+      "defaultText": "طبيب عام",
+      "clickToAdd": "انقر لإضافة التخصص",
+      "editLabel": "تعديل التخصص",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "errors": {
+        "nameRequired": "اسم التخصص مطلوب",
+        "generic": "فشل تحديث التخصص"
+      },
+      "success": {
+        "updated": "تم تحديث التخصص بنجاح"
+      }
+    }
+  },
+  "profile": {
+  "errors": {
+    "loadingTimeout": "استغرق التحميل وقتًا طويلاً. يرجى التحديث.",
+    "updateSpecialistFailed": "فشل تحديث التخصص",
+    "confirmAppointmentFailed": "تعذر تأكيد الموعد.",
+    "completeAppointmentFailed": "رمز الحجز غير صحيح أو فشل الإكمال.",
+    "loadProfileFailed": "فشل تحميل بيانات الملف الشخصي.",
+    "updateBasicInfoFailed": "فشل تحديث المعلومات الأساسية.",
+    "updateAboutFailed": "فشل تحديث المعلومات التعريفية.",
+    "addDoctorFailed": "فشل إضافة الطبيب.",
+    "removeDoctorFailed": "فشل إزالة الطبيب.",
+    "labSpecialistNotImplemented": "إضافة/إزالة التخصصات للمعامل غير متاحة بعد.",
+    "addSpecialistFailed": "فشل تحديث التخصص.",
+    "removeSpecialistFailed": "فشل إزالة التخصص.",
+    "addInsuranceFailed": "فشل إضافة التأمين",
+    "removeInsuranceFailed": "فشل إزالة التأمين",
+    "addCertificateFailed": "فشل إضافة الشهادة",
+    "removeCertificateFailed": "فشل إزالة الشهادة",
+    "addScheduleFailed": "فشل إضافة الجدول",
+    "removeScheduleFailed": "فشل إزالة الجدول",
+    "confirmLabBookingFailed": "تعذر تأكيد الحجز.",
+    "completeLabBookingFailed": "رمز الحجز غير صحيح أو فشل الإكمال."
+  },
+  "notFound": "بيانات الملف الشخصي غير موجودة.",
+  "unnamed": "غير مسمى"
+},
+"profileTabs": {
+  "overview": "نظرة عامة",
+  "team": "الفريق",
+  "bookings": "الحجوزات",
+  "specialists": "التخصصات",
+  "schedule": "الجدول",
+  "insurance": "التأمين",
+  "certs": "الشهادات",
+  "loading": "جاري التحميل..."
+},
+"profileSidebar": {
+  "verified": "موثوق",
+  "pending": "قيد الانتظار",
+  "rating": "التقييم",
+  "noBio": "لا توجد سيرة ذاتية",
+  "location": "الموقع",
+  "phone": "الهاتف",
+  "email": "البريد الإلكتروني",
+  "notAvailable": "غير متوفر"
+},
+"profileStats": {
+  "totalBookings": "إجمالي الحجوزات",
+  "completed": "مكتمل",
+  "rating": "تقييم العيادة",
+  "overall": "الإجمالي",
+  "success": "نجاح",
+  "global": "عالمي"
+},
+"profileHeader": {
+  "brand": "ترياق للإدارة",
+  "editDetails": "تعديل التفاصيل",
+  "logout": "تسجيل الخروج"
+}
+}

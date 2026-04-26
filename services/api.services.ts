@@ -1,79 +1,95 @@
-// services/api.services.ts
 
 import api from "./api";
 
 export const DashboardService = {
-  // Get dashboard stats for the current user
   getStats: async () => {
     const res = await api.get("/dashboard/stats/");
-    // Backend returns { dashboard: string, data: {...} }
     return {
-      dashboard: res.data.dashboard,
-      data: res.data.data,
+      dashboard: res.data?.dashboard,
+      data: res.data?.data,
     };
   },
 
-  // Get chart data for appointments or lab bookings
-  getChartData: async (type: "appointments" | "lab_bookings", range: string) => {
-    const endpoint = type === "appointments" ? "/dashboard/appointments-chart/" : "/dashboard/lab-bookings-chart/";
+  getChartData: async (
+    type: "appointments" | "lab_bookings",
+    range: string
+  ) => {
+    const endpoint =
+      type === "appointments"
+        ? "/dashboard/appointments-chart/"
+        : "/dashboard/lab-bookings-chart/";
+
     const res = await api.get(`${endpoint}?range=${range}`);
-    // Backend returns { status: "success", data: [{ date, count }] }
-    return res.data.data || [];
+    return res.data?.data ?? [];
   },
 };
 
 export const Entities = {
-  // ========== GET ==========
   getEntities: async (entity: string) => {
-    const res = await api.get(`/dashboard/entities/${entity}/`);
-    return res.data?.data ?? res.data ?? [];
+    try {
+      const res = await api.get(`/dashboard/entities/${entity}/`);
+      return res.data?.data ?? [];
+    } catch {
+      return [];
+    }
   },
 
   getEntityDetail: async (entityType: string, id: string | number) => {
-    const res = await api.get(`/dashboard/entities/${entityType}/${id}/`);
-    const data = res.data?.data ?? res.data;
-    return {
-      ...data,
-      specialists: data?.specialists ?? [],
-      insurance: data?.insurance ?? [],
-      certificates: data?.certificates ?? [],
-      assignments: data?.assignments ?? [],
-    };
+    try {
+      const res = await api.get(
+        `/dashboard/entities/${entityType}/${id}/`
+      );
+
+      const data = res.data?.data ?? res.data;
+
+      return {
+        ...data,
+        specialists: data?.specialists ?? [],
+        insurance: data?.insurance ?? [],
+        certificates: data?.certificates ?? [],
+        assignments: data?.assignments ?? [],
+      };
+    } catch {
+      return null;
+    }
   },
 
-  // ========== CREATE (Admin only) ==========
   createEntity: async (entityType: string, data: any) => {
-    const res = await api.post(`/dashboard/entities/${entityType}/create/`, data);
+    const res = await api.post(
+      `/dashboard/entities/${entityType}/create/`,
+      data
+    );
     return res.data;
   },
 
-  // ========== DELETE (Admin only) ==========
   deleteEntity: async (entityType: string, id: string | number) => {
-    const res = await api.delete(`/dashboard/entities/${entityType}/${id}/`);
+    const res = await api.delete(
+      `/dashboard/entities/${entityType}/${id}/`
+    );
     return res.data;
   },
 
-  // ========== BASIC INFO UPDATE ==========
-  updateEntityBasicInfo: async (entityType: string, id: string | number, data: {
-    name?: string;
-    address?: string;
-    phone?: string;
-    email?: string;
-    description?: string;
-    is_verified?: boolean; // added for doctors
-  }) => {
-    const res = await api.put(`/entities/${entityType}/${id}/update/`, data);
+  updateEntityBasicInfo: async (
+    entityType: string,
+    id: string | number,
+    data: any
+  ) => {
+    const res = await api.put(
+      `/entities/${entityType}/${id}/update/`,
+      data
+    );
     return res.data;
   },
 
-  // ========== ABOUT/BIO UPDATE ==========
-  updateEntityAbout: async (entityType: string, id: string | number, aboutData: {
-    bio?: string;
-    bio_details?: string;
-    experiance?: number;
-    operaiton?: number;
-  }) => {
-    const res = await api.put(`/entities/${entityType}/${id}/about/update/`, aboutData);
+  updateEntityAbout: async (
+    entityType: string,
+    id: string | number,
+    aboutData: any
+  ) => {
+    const res = await api.put(
+      `/entities/${entityType}/${id}/about/update/`,
+      aboutData
+    );
     return res.data;
   },
 

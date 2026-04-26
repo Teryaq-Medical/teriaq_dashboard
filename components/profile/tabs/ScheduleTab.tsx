@@ -11,6 +11,7 @@ import {
   IconBuildingStore,
   IconClock,
 } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 
 interface ScheduleTabProps {
   assignments?: any;
@@ -25,6 +26,8 @@ export default function ScheduleTab({
   onAddSchedule,
   onRemoveSchedule,
 }: ScheduleTabProps) {
+  const t = useTranslations("schedule");
+
   const dataArray = React.useMemo(() => {
     if (!assignments) return [];
     if (Array.isArray(assignments)) return assignments;
@@ -32,13 +35,18 @@ export default function ScheduleTab({
     return [];
   }, [assignments]);
 
-  const formatDay = (day: string) => {
-    const days: Record<string, string> = {
-      mon: "Monday", tue: "Tuesday", wed: "Wednesday",
-      thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday",
-    };
-    return days[day] || day;
+  // Translated day names
+  const dayMap: Record<string, string> = {
+    mon: t("days.mon"),
+    tue: t("days.tue"),
+    wed: t("days.wed"),
+    thu: t("days.thu"),
+    fri: t("days.fri"),
+    sat: t("days.sat"),
+    sun: t("days.sun"),
   };
+
+  const formatDay = (day: string) => dayMap[day] || day;
 
   const groupedData = {
     doctor: dataArray.filter((a: any) => a.entity_type === "doctor" || a.entity_type === "individual"),
@@ -65,7 +73,7 @@ export default function ScheduleTab({
                   <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
                     {assignment.doctor?.full_name ||
                      assignment.unregistered_doctor?.full_name ||
-                     (assignment.entity_type === "hospital" ? "Hospital Assignment" : "Clinic Assignment")}
+                     (assignment.entity_type === "hospital" ? t("hospitalAssignment") : t("clinicAssignment"))}
                   </h4>
                 </div>
               </div>
@@ -76,7 +84,6 @@ export default function ScheduleTab({
                   key={schedule.id}
                   className="group relative overflow-hidden rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:border-[#00B0D0]/30"
                 >
-                  {/* Decorative background - pointer-events-none prevents blocking clicks */}
                   <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-[#00B0D0]/5 to-transparent rounded-bl-3xl pointer-events-none" />
                   <div className="p-4">
                     <div className="flex items-start justify-between">
@@ -119,8 +126,8 @@ export default function ScheduleTab({
           <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
             <IconCalendar className="text-slate-300 dark:text-slate-500 size-8" />
           </div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">No schedules found</p>
-          <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">No working hours added in this category</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">{t("noSchedules")}</p>
+          <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">{t("noSchedulesHint")}</p>
         </div>
       )}
     </div>
@@ -132,15 +139,15 @@ export default function ScheduleTab({
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Working Hours</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your availability and working schedules</p>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t("title")}</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("subtitle")}</p>
         </div>
         {isOwner && (
-          <Button 
-            onClick={onAddSchedule} 
+          <Button
+            onClick={onAddSchedule}
             className="rounded-xl bg-gradient-to-r from-[#00B0D0] to-cyan-500 hover:from-[#009bb8] hover:to-cyan-600 text-white shadow-md hover:shadow-lg transition-all duration-300 px-5 py-2.5"
           >
-            <IconPlus size={18} className="mr-2" /> Add New Schedule
+            <IconPlus size={18} className="mr-2" /> {t("addButton")}
           </Button>
         )}
       </div>
@@ -149,30 +156,30 @@ export default function ScheduleTab({
         <Tabs defaultValue="doctor" className="w-full">
           <TabsList className="inline-flex h-auto p-1 bg-slate-100 dark:bg-slate-800 rounded-xl gap-1 mb-8">
             {groupedData.doctor.length > 0 && (
-              <TabsTrigger 
-                value="doctor" 
+              <TabsTrigger
+                value="doctor"
                 className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-[#00B0D0] data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all dark:text-slate-300"
               >
-                <IconUser size={16} className="mr-2" /> 
-                Personal 
+                <IconUser size={16} className="mr-2" />
+                {t("tabs.personal")}
               </TabsTrigger>
             )}
             {groupedData.hospital.length > 0 && (
-              <TabsTrigger 
-                value="hospital" 
+              <TabsTrigger
+                value="hospital"
                 className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-[#00B0D0] data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all dark:text-slate-300"
               >
-                <IconBuildingHospital size={16} className="mr-2" /> 
-                Hospitals
+                <IconBuildingHospital size={16} className="mr-2" />
+                {t("tabs.hospitals")}
               </TabsTrigger>
             )}
             {groupedData.clinic.length > 0 && (
-              <TabsTrigger 
-                value="clinic" 
+              <TabsTrigger
+                value="clinic"
                 className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-[#00B0D0] data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all dark:text-slate-300"
               >
-                <IconBuildingStore size={16} className="mr-2" /> 
-                Clinics 
+                <IconBuildingStore size={16} className="mr-2" />
+                {t("tabs.clinics")}
               </TabsTrigger>
             )}
           </TabsList>
@@ -200,17 +207,15 @@ export default function ScheduleTab({
           <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
             <IconCalendar className="text-slate-300 dark:text-slate-500 size-10" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">No Working Hours Yet</h3>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-            Add your working hours to let patients know when you're available.
-          </p>
+          <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("emptyTitle")}</h3>
+          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">{t("emptyDescription")}</p>
           {isOwner && (
-            <Button 
-              onClick={onAddSchedule} 
-              variant="outline" 
+            <Button
+              onClick={onAddSchedule}
+              variant="outline"
               className="mt-6 rounded-xl border-[#00B0D0] text-[#00B0D0] hover:bg-[#00B0D0] hover:text-white transition-all"
             >
-              <IconPlus size={16} className="mr-2" /> Add Your First Schedule
+              <IconPlus size={16} className="mr-2" /> {t("addFirstSchedule")}
             </Button>
           )}
         </div>

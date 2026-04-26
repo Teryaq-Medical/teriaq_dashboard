@@ -7,6 +7,7 @@ import { Entities } from "@/services/api.services";
 import { getImageUrl } from "@/lib/image";
 import api from "@/services/api";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl"; // ← added
 
 // Import components
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -23,6 +24,7 @@ import AddInsuranceModal from "@/components/profile/modals/AddInsuranceModal";
 import AddCertificateModal from "@/components/profile/modals/AddCertificateModal";
 
 export default function UltraModernEntityProfile() {
+  const t = useTranslations("profile"); // ← added
   const params = useParams();
   const router = useRouter();
   const entityType = params?.entity as string;
@@ -57,11 +59,11 @@ export default function UltraModernEntityProfile() {
     const timeoutId = setTimeout(() => {
       if (loading) {
         setLoading(false);
-        toast.error("Loading took too long. Please refresh.");
+        toast.error(t("errors.loadingTimeout"));
       }
     }, 15000);
     return () => clearTimeout(timeoutId);
-  }, [loading]);
+  }, [loading, t]);
 
   const normalizeEntityType = (type: string): string => {
     if (!type) return "";
@@ -74,7 +76,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to update doctor specialist:", error);
-      toast.error("Failed to update specialization");
+      toast.error(t("errors.updateSpecialistFailed"));
     }
   };
 
@@ -84,7 +86,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to confirm appointment:", error);
-      toast.error("Could not confirm appointment.");
+      toast.error(t("errors.confirmAppointmentFailed"));
     }
   };
 
@@ -94,7 +96,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to complete appointment:", error);
-      toast.error("Invalid booking code or failed to complete.");
+      toast.error(t("errors.completeAppointmentFailed"));
     }
   };
 
@@ -107,13 +109,13 @@ export default function UltraModernEntityProfile() {
         setData(result);
       } catch (err) {
         console.error("Failed to fetch entity:", err);
-        toast.error("Failed to load profile data.");
+        toast.error(t("errors.loadProfileFailed"));
       } finally {
         setLoading(false);
       }
     };
     fetchDetail();
-  }, [entityType, id, refreshTrigger]);
+  }, [entityType, id, refreshTrigger, t]);
 
   // Fetch lab bookings (only for labs)
   useEffect(() => {
@@ -192,7 +194,7 @@ export default function UltraModernEntityProfile() {
       setEditBasicInfoOpen(false);
     } catch (error) {
       console.error("Failed to update basic info:", error);
-      toast.error("Failed to update basic information.");
+      toast.error(t("errors.updateBasicInfoFailed"));
     }
   };
 
@@ -204,7 +206,7 @@ export default function UltraModernEntityProfile() {
       setEditAboutOpen(false);
     } catch (error) {
       console.error("Failed to update about:", error);
-      toast.error("Failed to update about information.");
+      toast.error(t("errors.updateAboutFailed"));
     }
   };
 
@@ -219,7 +221,7 @@ export default function UltraModernEntityProfile() {
       setNewDoctorId("");
     } catch (error: any) {
       console.error("❌ Failed to add doctor:", error);
-      toast.error(error.response?.data?.error || "Failed to add doctor.");
+      toast.error(error.response?.data?.error || t("errors.addDoctorFailed"));
     }
   };
 
@@ -229,7 +231,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to remove doctor:", error);
-      toast.error("Failed to remove doctor.");
+      toast.error(t("errors.removeDoctorFailed"));
     }
   };
 
@@ -239,7 +241,7 @@ export default function UltraModernEntityProfile() {
       if (entityType === "doctors") {
         await Entities.updateDoctorSpecialist(id, name);
       } else if (entityType === "labs") {
-        toast.error("Adding specialists for labs is not yet implemented.");
+        toast.error(t("errors.labSpecialistNotImplemented"));
         return;
       } else {
         await Entities.addSpecialist(entityType, id, name);
@@ -247,14 +249,14 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to add/update specialist:", error);
-      toast.error("Failed to update specialist.");
+      toast.error(t("errors.addSpecialistFailed"));
     }
   };
 
   const removeSpecialist = async (specialistId: string) => {
     try {
       if (entityType === "labs") {
-        toast.error("Removing specialists for labs is not yet implemented.");
+        toast.error(t("errors.labSpecialistNotImplemented"));
         return;
       } else if (entityType !== "doctors") {
         await Entities.removeSpecialist(entityType, id, specialistId);
@@ -262,7 +264,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to remove specialist:", error);
-      toast.error("Failed to remove specialist.");
+      toast.error(t("errors.removeSpecialistFailed"));
     }
   };
 
@@ -290,7 +292,7 @@ export default function UltraModernEntityProfile() {
       setNewInsurance({ entity: "", status: "عادية" });
     } catch (error: any) {
       console.error("Failed to add insurance:", error);
-      toast.error(error.response?.data?.details || "Failed to add insurance");
+      toast.error(error.response?.data?.details || t("errors.addInsuranceFailed"));
     }
   };
 
@@ -304,7 +306,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error: any) {
       console.error("Failed to remove insurance:", error);
-      toast.error(error.response?.data?.error || "Failed to remove insurance");
+      toast.error(error.response?.data?.error || t("errors.removeInsuranceFailed"));
     }
   };
 
@@ -321,7 +323,7 @@ export default function UltraModernEntityProfile() {
       setNewCertificate({ name: "", entity: "" });
     } catch (error) {
       console.error("Failed to add certificate:", error);
-      toast.error("Failed to add certificate");
+      toast.error(t("errors.addCertificateFailed"));
     }
   };
 
@@ -335,7 +337,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to remove certificate:", error);
-      toast.error("Failed to remove certificate");
+      toast.error(t("errors.removeCertificateFailed"));
     }
   };
 
@@ -352,7 +354,7 @@ export default function UltraModernEntityProfile() {
       setNewSchedule({ day: "", start_time: "", end_time: "", date: "" });
     } catch (error) {
       console.error("Failed to add schedule:", error);
-      toast.error("Failed to add schedule");
+      toast.error(t("errors.addScheduleFailed"));
     }
   };
 
@@ -362,7 +364,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to remove schedule:", error);
-      toast.error("Failed to remove schedule");
+      toast.error(t("errors.removeScheduleFailed"));
     }
   };
 
@@ -372,7 +374,7 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to confirm lab booking:", error);
-      toast.error("Could not confirm booking.");
+      toast.error(t("errors.confirmLabBookingFailed"));
     }
   };
 
@@ -382,18 +384,26 @@ export default function UltraModernEntityProfile() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to complete lab booking:", error);
-      toast.error("Invalid booking code or failed to complete.");
+      toast.error(t("errors.completeLabBookingFailed"));
     }
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-[#00B0D0] border-t-transparent rounded-full animate-spin" /></div>;
-  if (!data) return <div className="p-10 text-center text-slate-400 font-bold">Profile data not found.</div>;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-[#00B0D0] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+  if (!data) return (
+    <div className="p-10 text-center text-slate-400 font-bold">
+      {t("notFound")}
+    </div>
+  );
 
   const isDoctor = entityType === "doctors";
   const isLab = entityType === "labs";
   const isHospitalOrClinic = ["hospitals", "clincs"].includes(entityType);
-  const displayName = data.name || data.full_name || data.user?.full_name || "Unnamed";
-  const rating = data.rating ?? data.ratings ?? 0;
+  const displayName = data.name || data.full_name || data.user?.full_name || t("unnamed");
+  const rating = data.rating ?? data.ratings ?? 0; // ✅ included
 
   // Compute lab booking stats
   const labStats = {

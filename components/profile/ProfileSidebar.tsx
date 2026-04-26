@@ -1,6 +1,13 @@
 import React from "react";
-import { IconMapPin, IconPhone, IconMail, IconStarFilled, IconEdit } from "@tabler/icons-react";
+import {
+  IconMapPin,
+  IconPhone,
+  IconMail,
+  IconStarFilled,
+  IconEdit,
+} from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 
 interface ProfileSidebarProps {
   data: any;
@@ -23,7 +30,7 @@ export default function ProfileSidebar({
   onEditBasicInfo,
   onEditAbout,
 }: ProfileSidebarProps) {
-  // Provide fallback empty object if data is somehow undefined (should not happen, but safe)
+  const t = useTranslations("profileSidebar");
   const safeData = data || {};
 
   return (
@@ -46,10 +53,14 @@ export default function ProfileSidebar({
         </div>
         <Badge
           className={`absolute -bottom-3 left-10 border-4 border-[#FAF9F6] dark:border-slate-900 py-1 px-4 rounded-full shadow-lg ${
-            safeData.is_active || safeData.is_verified ? "bg-green-500" : "bg-orange-500"
+            safeData.is_active || safeData.is_verified
+              ? "bg-green-500"
+              : "bg-orange-500"
           } text-white`}
         >
-          {safeData.is_active || safeData.is_verified ? "Verified" : "Pending"}
+          {safeData.is_active || safeData.is_verified
+            ? t("verified")
+            : t("pending")}
         </Badge>
       </div>
 
@@ -70,11 +81,15 @@ export default function ProfileSidebar({
         </div>
         <div className="flex items-center gap-2">
           <IconStarFilled size={16} className="text-amber-400" />
-          <span className="text-xs font-bold text-slate-400 dark:text-slate-500">{rating} Rating</span>
+          <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
+            {rating} {t("rating")}
+          </span>
         </div>
         <div className="relative">
           <p className="text-sm text-slate-500 dark:text-slate-400 italic">
-            {safeData.about?.bio || safeData.description || "No biography available"}
+            {safeData.about?.bio ||
+              safeData.description ||
+              t("noBio")}
           </p>
           {isOwner && (
             <button
@@ -92,24 +107,27 @@ export default function ProfileSidebar({
         <div className="p-5 space-y-4">
           <ContactItem
             icon={<IconMapPin size={18} />}
-            label="Location"
+            label={t("location")}
             value={safeData.address}
             editable={isOwner}
             onEdit={onEditBasicInfo}
+            t={t}
           />
           <ContactItem
             icon={<IconPhone size={18} />}
-            label="Phone"
+            label={t("phone")}
             value={safeData.phone || safeData.phone_number}
             editable={isOwner}
             onEdit={onEditBasicInfo}
+            t={t}
           />
           <ContactItem
             icon={<IconMail size={18} />}
-            label="Email"
+            label={t("email")}
             value={safeData.email}
             editable={isOwner}
             onEdit={onEditBasicInfo}
+            t={t}
           />
         </div>
       </div>
@@ -117,16 +135,34 @@ export default function ProfileSidebar({
   );
 }
 
-// Reusable ContactItem with dark mode support
-function ContactItem({ icon, label, value, editable, onEdit }: any) {
+// Updated ContactItem with i18n support
+function ContactItem({
+  icon,
+  label,
+  value,
+  editable,
+  onEdit,
+  t,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: any;
+  editable: boolean;
+  onEdit: () => void;
+  t: any;
+}) {
   return (
     <div className="flex items-center gap-4 group relative">
       <div className="size-10 rounded-2xl bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-[#00B0D0] group-hover:bg-[#00B0D0] group-hover:text-white transition-all">
         {icon}
       </div>
       <div className="flex-1">
-        <p className="text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">{label}</p>
-        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{value || "N/A"}</p>
+        <p className="text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">
+          {label}
+        </p>
+        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+          {value || t("notAvailable")}
+        </p>
       </div>
       {editable && (
         <button

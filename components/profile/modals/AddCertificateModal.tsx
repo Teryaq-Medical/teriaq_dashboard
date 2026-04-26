@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface AddCertificateModalProps {
   open: boolean;
@@ -26,27 +27,28 @@ export default function AddCertificateModal({
   setCertificate,
   onSave,
 }: AddCertificateModalProps) {
+  const t = useTranslations("modals.certificate");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!certificate.name.trim()) {
-      toast.error("Certificate name is required");
+      toast.error(t("errors.nameRequired"));
       return;
     }
     if (!certificate.entity.trim()) {
-      toast.error("Issuing entity is required");
+      toast.error(t("errors.entityRequired"));
       return;
     }
 
     setLoading(true);
     try {
       await onSave(certificate);
-      toast.success("Certificate added successfully");
+      toast.success(t("success.added"));
       setCertificate({ name: "", entity: "" });
       onOpenChange(false);
     } catch (error: any) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to add certificate");
+      toast.error(error.response?.data?.message || t("errors.generic"));
     } finally {
       setLoading(false);
     }
@@ -57,13 +59,13 @@ export default function AddCertificateModal({
       <DialogContent className="bg-white dark:bg-slate-800 rounded-[2rem] border-none shadow-2xl p-8 max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-800 dark:text-white">
-            Add Certificate
+            {t("title")}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-5 mt-4">
           <div className="space-y-2">
             <Label className="text-sm font-semibold text-slate-600 dark:text-slate-300 ml-1">
-              Certificate Name
+              {t("certificateNameLabel")}
             </Label>
             <Input
               placeholder="e.g. Board Certified Surgeon"
@@ -74,7 +76,7 @@ export default function AddCertificateModal({
           </div>
           <div className="space-y-2">
             <Label className="text-sm font-semibold text-slate-600 dark:text-slate-300 ml-1">
-              Issuing Entity
+              {t("issuingEntityLabel")}
             </Label>
             <Input
               placeholder="e.g. Medical Board"
@@ -88,7 +90,7 @@ export default function AddCertificateModal({
             disabled={loading}
             className="w-full bg-[#00B0D0] hover:bg-[#0096b0] text-white rounded-xl py-6 font-bold transition-all shadow-lg shadow-cyan-100 dark:shadow-cyan-950/50 mt-2"
           >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Add Certificate"}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : t("addButton")}
           </Button>
         </div>
       </DialogContent>

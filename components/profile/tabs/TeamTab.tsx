@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 import {
   IconSearch,
   IconUsers,
@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { useTranslations } from "next-intl";
 
 interface ScheduleForm {
   id?: number;
@@ -57,6 +58,8 @@ export default function TeamTab({
   onAddDoctor,
   onRemoveDoctor,
 }: TeamTabProps) {
+  const t = useTranslations("team");
+
   const [showOnlyRegistered, setShowOnlyRegistered] = useState<
     "all" | "registered" | "unregistered"
   >("all");
@@ -102,7 +105,7 @@ export default function TeamTab({
       const data = res.data?.data || res.data?.results || res.data || [];
       setSchedules(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error("Failed to load schedules");
+      toast.error(t("errors.scheduleLoadFailed"));
       setSchedules([]);
     } finally {
       setLoadingSchedules(false);
@@ -147,7 +150,7 @@ export default function TeamTab({
         (s) => s.day && s.start_time && s.end_time && s.date,
       );
       if (validSchedules.length === 0) {
-        toast.error("Add at least one valid schedule");
+        toast.error(t("errors.scheduleAtLeastOne"));
         setSubmittingSchedules(false);
         return;
       }
@@ -160,10 +163,10 @@ export default function TeamTab({
           date: sch.date,
         });
       }
-      toast.success("Schedules saved!");
+      toast.success(t("success.schedulesSaved"));
       setScheduleModalOpen(false);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to save schedules");
+      toast.error(error.response?.data?.message || t("errors.scheduleSaveFailed"));
     } finally {
       setSubmittingSchedules(false);
     }
@@ -178,7 +181,6 @@ export default function TeamTab({
       phone_number: doctor.phone_number || "",
       address: doctor.address || "",
     });
-    // Fetch schedules for the assignment
     setLoadingEditSchedules(true);
     api
       .get(`/work-schedule/?assignment=${assignment.id}`)
@@ -187,7 +189,7 @@ export default function TeamTab({
         setEditSchedules(Array.isArray(data) ? data : []);
       })
       .catch(() => {
-        toast.error("Failed to load schedules");
+        toast.error(t("errors.scheduleLoadFailed"));
         setEditSchedules([]);
       })
       .finally(() => setLoadingEditSchedules(false));
@@ -226,7 +228,6 @@ export default function TeamTab({
     if (!currentAssignment) return;
     setSubmittingEdit(true);
     try {
-      // 1. Update unregistered doctor personal data
       const doctorPatch: any = {};
       if (
         editDoctorData.full_name !==
@@ -252,13 +253,11 @@ export default function TeamTab({
         );
       }
 
-      // 2. Save schedules (similar logic)
       const validSchedules = editSchedules.filter(
         (s) => s.day && s.start_time && s.end_time && s.date,
       );
       for (const sch of validSchedules) {
         if (!sch.id) {
-          // New schedule
           await api.post("/work-schedule/", {
             assignment: currentAssignment.id,
             day: sch.day,
@@ -267,27 +266,26 @@ export default function TeamTab({
             date: sch.date,
           });
         }
-        // If we want to support editing existing schedules, we could detect changes and PATCH
-        // For simplicity, we only add new ones; existing ones remain untouched.
       }
 
-      toast.success("Doctor data updated!");
+      toast.success(t("success.doctorUpdated"));
       setEditModalOpen(false);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update doctor");
+      toast.error(error.response?.data?.message || t("errors.doctorUpdateFailed"));
     } finally {
       setSubmittingEdit(false);
     }
   };
 
+  // Translated days for dropdowns
   const daysOfWeek = [
-    { value: "mon", label: "Monday" },
-    { value: "tue", label: "Tuesday" },
-    { value: "wed", label: "Wednesday" },
-    { value: "thu", label: "Thursday" },
-    { value: "fri", label: "Friday" },
-    { value: "sat", label: "Saturday" },
-    { value: "sun", label: "Sunday" },
+    { value: "mon", label: t("scheduleDays.mon") },
+    { value: "tue", label: t("scheduleDays.tue") },
+    { value: "wed", label: t("scheduleDays.wed") },
+    { value: "thu", label: t("scheduleDays.thu") },
+    { value: "fri", label: t("scheduleDays.fri") },
+    { value: "sat", label: t("scheduleDays.sat") },
+    { value: "sun", label: t("scheduleDays.sun") },
   ];
 
   return (
@@ -300,7 +298,7 @@ export default function TeamTab({
             size={18}
           />
           <Input
-            placeholder="Search doctor or specialty..."
+            placeholder={t("searchPlaceholder")}
             value={teamSearchQuery}
             onChange={(e) => setTeamSearchQuery(e.target.value)}
             className="pl-10 rounded-2xl border-slate-200 dark:border-slate-700 focus:border-[#00B0D0] bg-white dark:bg-slate-800 h-11 text-sm shadow-sm dark:text-white w-full"
@@ -316,7 +314,7 @@ export default function TeamTab({
                 : "bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-100 dark:border-slate-700 hover:border-[#00B0D0]"
             }`}
           >
-            All Staff
+            {t("filterAllStaff")}
           </button>
           {uniqueSpecialties.map((spec) => (
             <button
@@ -344,7 +342,7 @@ export default function TeamTab({
               : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
           }`}
         >
-          All Doctors ({filteredTeam.length})
+          {t("allDoctors", { count: filteredTeam.length })}
         </button>
         <button
           onClick={() => setShowOnlyRegistered("registered")}
@@ -354,7 +352,7 @@ export default function TeamTab({
               : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
           }`}
         >
-          Registered ({registeredDoctors.length})
+          {t("registeredDoctors", { count: registeredDoctors.length })}
         </button>
         <button
           onClick={() => setShowOnlyRegistered("unregistered")}
@@ -364,7 +362,7 @@ export default function TeamTab({
               : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
           }`}
         >
-          Unregistered ({unregisteredDoctors.length})
+          {t("unregisteredDoctors", { count: unregisteredDoctors.length })}
         </button>
       </div>
 
@@ -375,7 +373,7 @@ export default function TeamTab({
             size="sm"
             className="rounded-full bg-[#00B0D0] text-white"
           >
-            <IconPlus size={16} className="mr-1" /> Add Doctor
+            <IconPlus size={16} className="mr-1" /> {t("addDoctor")}
           </Button>
         </div>
       )}
@@ -388,21 +386,20 @@ export default function TeamTab({
             const doctor = isRegistered
               ? asgn.doctor
               : asgn.unregistered_doctor;
-            const doctorName = doctor?.full_name || "Unknown Doctor";
-            const specialty = doctor?.specialist?.name || "General Specialist";
+            const doctorName = doctor?.full_name || t("unknownDoctor");
+            const specialty = doctor?.specialist?.name || t("generalSpecialist");
             const profileImage =
               doctor?.profile_image || "/placeholders/default-doctor.png";
             const status = asgn.status;
             const isApproved = status === "approved";
 
-            // Determine click action
             const isClickable = isApproved && isOwner;
             const handleCardClick = () => {
               if (!isClickable) return;
               if (isRegistered) {
                 openScheduleModal(asgn);
               } else {
-                openEditModal(asgn); // full edit for unregistered
+                openEditModal(asgn);
               }
             };
 
@@ -437,20 +434,15 @@ export default function TeamTab({
                       <p className="font-bold text-slate-900 dark:text-white truncate">
                         {doctorName}
                       </p>
-                      {/* {!isRegistered && (
-                        // <Badge className="bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 text-[9px] px-2 py-0.5">
-                        //   Pending Approval
-                        // </Badge>
-                      )} */}
                       {status === "pending" && isRegistered && (
                         <Badge className="bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400 text-[9px] px-2 py-0.5">
-                          Pending
+                          {t("pending")}
                         </Badge>
                       )}
                       {isApproved && (
                         <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 text-[9px] px-2 py-0.5">
                           <IconCheck size={12} className="mr-1 inline" />
-                          Approved
+                          {t("approved")}
                         </Badge>
                       )}
                     </div>
@@ -493,7 +485,7 @@ export default function TeamTab({
               size={40}
             />
             <p className="text-slate-400 dark:text-slate-500 text-sm font-medium italic">
-              No doctors found.
+              {t("noDoctors")}
             </p>
           </div>
         )}
@@ -501,52 +493,54 @@ export default function TeamTab({
 
       {/* Schedule-only modal (for registered doctors) */}
       <Dialog open={scheduleModalOpen} onOpenChange={setScheduleModalOpen}>
-        <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto rounded-[2.5rem] p-6 sm:p-8">
+        <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto rounded-[2.5rem] p-6 sm:p-8 bg-white dark:bg-slate-800">
           <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl font-bold">
-              Manage Schedules — {currentAssignment?.doctor?.full_name}
+            <DialogTitle className="text-xl sm:text-2xl font-bold text-black dark:text-white">
+              {t("scheduleModal.title")} — {currentAssignment?.doctor?.full_name}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <h3 className="font-semibold text-lg">Working Schedules</h3>
+              <h3 className="font-semibold text-lg text-black dark:text-white">
+                {t("scheduleModal.workingSchedules")}
+              </h3>
               <Button
                 variant="outline"
                 onClick={addScheduleRow}
-                className="rounded-xl text-sm"
+                className="rounded-xl text-sm border-slate-200 dark:border-slate-700 text-black dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                <IconPlus size={16} className="mr-1" /> Add Schedule
+                <IconPlus size={16} className="mr-1" /> {t("scheduleModal.addSchedule")}
               </Button>
             </div>
 
             {loadingSchedules ? (
-              <p className="text-center text-slate-500 py-4">
-                Loading schedules…
+              <p className="text-center text-slate-500 dark:text-slate-400 py-4">
+                {t("scheduleModal.loading")}
               </p>
             ) : schedules.length === 0 ? (
               <p className="text-center text-slate-400 dark:text-slate-500 py-4">
-                No schedules yet.
+                {t("scheduleModal.noSchedules")}
               </p>
             ) : (
               <div className="space-y-3">
                 {schedules.map((sch, index) => (
                   <div
                     key={index}
-                    className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-2xl border"
+                    className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-2xl border border-slate-200 dark:border-slate-600"
                   >
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
                       <div>
-                        <Label className="text-xs uppercase font-black">
-                          Day
+                        <Label className="text-xs uppercase font-black text-black dark:text-white">
+                          {t("scheduleModal.day")}
                         </Label>
                         <select
                           value={sch.day}
                           onChange={(e) =>
                             updateScheduleRow(index, "day", e.target.value)
                           }
-                          className="w-full mt-1 rounded-xl border h-10 text-sm"
+                          className="w-full mt-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 h-10 text-sm text-black dark:text-white focus:border-[#00B0D0] focus:ring-1 focus:ring-[#00B0D0]/20"
                         >
-                          <option value="">Select</option>
+                          <option value="">{t("scheduleModal.select")}</option>
                           {daysOfWeek.map((d) => (
                             <option key={d.value} value={d.value}>
                               {d.label}
@@ -555,8 +549,8 @@ export default function TeamTab({
                         </select>
                       </div>
                       <div>
-                        <Label className="text-xs uppercase font-black">
-                          Start Time
+                        <Label className="text-xs uppercase font-black text-black dark:text-white">
+                          {t("scheduleModal.startTime")}
                         </Label>
                         <Input
                           type="time"
@@ -568,12 +562,12 @@ export default function TeamTab({
                               e.target.value,
                             )
                           }
-                          className="mt-1 h-10"
+                          className="mt-1 h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-black dark:text-white"
                         />
                       </div>
                       <div>
-                        <Label className="text-xs uppercase font-black">
-                          End Time
+                        <Label className="text-xs uppercase font-black text-black dark:text-white">
+                          {t("scheduleModal.endTime")}
                         </Label>
                         <Input
                           type="time"
@@ -581,12 +575,12 @@ export default function TeamTab({
                           onChange={(e) =>
                             updateScheduleRow(index, "end_time", e.target.value)
                           }
-                          className="mt-1 h-10"
+                          className="mt-1 h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-black dark:text-white"
                         />
                       </div>
                       <div>
-                        <Label className="text-xs uppercase font-black">
-                          Date
+                        <Label className="text-xs uppercase font-black text-black dark:text-white">
+                          {t("scheduleModal.date")}
                         </Label>
                         <Input
                           type="date"
@@ -594,7 +588,7 @@ export default function TeamTab({
                           onChange={(e) =>
                             updateScheduleRow(index, "date", e.target.value)
                           }
-                          className="mt-1 h-10"
+                          className="mt-1 h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-black dark:text-white"
                         />
                       </div>
                     </div>
@@ -603,7 +597,7 @@ export default function TeamTab({
                         variant="ghost"
                         size="sm"
                         onClick={() => removeScheduleRow(index)}
-                        className="text-red-500"
+                        className="rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50"
                       >
                         <IconTrash size={16} />
                       </Button>
@@ -617,16 +611,16 @@ export default function TeamTab({
             <Button
               variant="outline"
               onClick={() => setScheduleModalOpen(false)}
-              className="rounded-full w-full sm:w-auto"
+              className="rounded-full w-full sm:w-auto border-slate-200 dark:border-slate-700 text-black dark:text-slate-300"
             >
-              Cancel
+              {t("scheduleModal.cancel")}
             </Button>
             <Button
               onClick={handleSaveSchedules}
               disabled={submittingSchedules}
-              className="rounded-full bg-[#00B0D0] text-white w-full sm:w-auto"
+              className="rounded-full bg-[#00B0D0] hover:bg-[#0096b0] text-white w-full sm:w-auto"
             >
-              {submittingSchedules ? "Saving…" : "Save All Schedules"}
+              {submittingSchedules ? t("scheduleModal.saving") : t("scheduleModal.saveAll")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -637,7 +631,7 @@ export default function TeamTab({
         <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto rounded-[2.5rem] bg-white dark:bg-slate-800 p-6 sm:p-8">
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold text-black dark:text-white">
-              Edit Doctor & Schedules
+              {t("editModal.title")}
             </DialogTitle>
           </DialogHeader>
 
@@ -647,19 +641,21 @@ export default function TeamTab({
                 value="details"
                 className="rounded-xl data-[state=active]:bg-[#00B0D0] data-[state=active]:text-white text-black dark:text-slate-300"
               >
-                Personal Details
+                {t("editModal.personalDetails")}
               </TabsTrigger>
               <TabsTrigger
                 value="schedules"
                 className="rounded-xl data-[state=active]:bg-[#00B0D0] data-[state=active]:text-white text-black dark:text-slate-300"
               >
-                Schedules
+                {t("editModal.schedules")}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="details" className="space-y-4">
               <div>
-                <Label className="text-black dark:text-white">Full Name</Label>
+                <Label className="text-black dark:text-white">
+                  {t("editModal.fullName")}
+                </Label>
                 <Input
                   value={editDoctorData.full_name}
                   onChange={(e) =>
@@ -673,7 +669,7 @@ export default function TeamTab({
               </div>
               <div>
                 <Label className="text-black dark:text-white">
-                  Phone Number
+                  {t("editModal.phoneNumber")}
                 </Label>
                 <Input
                   value={editDoctorData.phone_number}
@@ -687,7 +683,9 @@ export default function TeamTab({
                 />
               </div>
               <div>
-                <Label className="text-black dark:text-white">Address</Label>
+                <Label className="text-black dark:text-white">
+                  {t("editModal.address")}
+                </Label>
                 <Input
                   value={editDoctorData.address}
                   onChange={(e) =>
@@ -705,7 +703,7 @@ export default function TeamTab({
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="font-semibold text-black dark:text-white">
-                    Working Schedules
+                    {t("editModal.workingSchedules")}
                   </h3>
                   <Button
                     variant="outline"
@@ -713,17 +711,17 @@ export default function TeamTab({
                     size="sm"
                     className="rounded-xl border-slate-200 dark:border-slate-700 text-black dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <IconPlus size={14} className="mr-1" /> Add
+                    <IconPlus size={14} className="mr-1" /> {t("editModal.add")}
                   </Button>
                 </div>
 
                 {loadingEditSchedules ? (
                   <p className="text-center text-slate-500 dark:text-slate-400 py-4">
-                    Loading schedules…
+                    {t("editModal.loading")}
                   </p>
                 ) : editSchedules.length === 0 ? (
                   <p className="text-center text-slate-400 dark:text-slate-500 py-4">
-                    No schedules yet.
+                    {t("editModal.noSchedules")}
                   </p>
                 ) : (
                   editSchedules.map((sch, index) => (
@@ -734,7 +732,7 @@ export default function TeamTab({
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
                         <div>
                           <Label className="text-xs uppercase font-black text-black dark:text-white">
-                            Day
+                            {t("editModal.day")}
                           </Label>
                           <select
                             value={sch.day}
@@ -747,7 +745,7 @@ export default function TeamTab({
                             }
                             className="w-full mt-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 h-10 text-sm text-black dark:text-white focus:border-[#00B0D0] focus:ring-1 focus:ring-[#00B0D0]/20"
                           >
-                            <option value="">Select</option>
+                            <option value="">{t("editModal.select")}</option>
                             {daysOfWeek.map((d) => (
                               <option key={d.value} value={d.value}>
                                 {d.label}
@@ -757,7 +755,7 @@ export default function TeamTab({
                         </div>
                         <div>
                           <Label className="text-xs uppercase font-black text-black dark:text-white">
-                            Start
+                            {t("editModal.start")}
                           </Label>
                           <Input
                             type="time"
@@ -774,7 +772,7 @@ export default function TeamTab({
                         </div>
                         <div>
                           <Label className="text-xs uppercase font-black text-black dark:text-white">
-                            End
+                            {t("editModal.end")}
                           </Label>
                           <Input
                             type="time"
@@ -791,7 +789,7 @@ export default function TeamTab({
                         </div>
                         <div>
                           <Label className="text-xs uppercase font-black text-black dark:text-white">
-                            Date
+                            {t("editModal.date")}
                           </Label>
                           <Input
                             type="date"
@@ -830,14 +828,14 @@ export default function TeamTab({
               onClick={() => setEditModalOpen(false)}
               className="rounded-full w-full sm:w-auto border-slate-200 dark:border-slate-700 text-black dark:text-slate-300"
             >
-              Cancel
+              {t("editModal.cancel")}
             </Button>
             <Button
               onClick={handleSaveEdit}
               disabled={submittingEdit}
               className="rounded-full bg-[#00B0D0] hover:bg-[#0096b0] text-white w-full sm:w-auto"
             >
-              {submittingEdit ? "Saving…" : "Save All Changes"}
+              {submittingEdit ? t("editModal.saving") : t("editModal.saveAll")}
             </Button>
           </DialogFooter>
         </DialogContent>

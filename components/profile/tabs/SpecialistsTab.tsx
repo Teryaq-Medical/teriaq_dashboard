@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { IconX, IconStethoscope, IconPlus } from "@tabler/icons-react";
 import { Card } from "@/components/ui/card";
 import AddSpecialistModal from "@/components/profile/modals/AddSpecialistModal";
+import { useTranslations } from "next-intl";
 
 interface SpecialistsTabProps {
   specialists: any[];
@@ -16,27 +17,28 @@ export default function SpecialistsTab({
   onAddSpecialist,
   onRemoveSpecialist,
 }: SpecialistsTabProps) {
+  const t = useTranslations("specialists");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="space-y-6">
-      <AddSpecialistModal 
-        open={isModalOpen} 
-        onOpenChange={setIsModalOpen} 
-        onSave={onAddSpecialist} 
+      <AddSpecialistModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSave={onAddSpecialist}
       />
 
       {specialists.length === 0 ? (
         <Card className="p-10 text-center border-dashed border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-[2.5rem]">
           <IconStethoscope className="mx-auto text-slate-300 dark:text-slate-600 w-12 h-12 mb-4" />
-          <p className="text-slate-500 dark:text-slate-400 font-medium">No specialists added yet</p>
-          <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Add medical specialties to help patients find you.</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">{t("emptyTitle")}</p>
+          <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">{t("emptyDescription")}</p>
           {isOwner && (
             <button
               onClick={() => setIsModalOpen(true)}
               className="mt-5 inline-flex items-center gap-2 px-6 py-2.5 bg-[#00B0D0] text-white rounded-full text-sm font-bold shadow-lg shadow-cyan-100 dark:shadow-cyan-950/50 hover:bg-[#21b3d5] transition-all"
             >
-              <IconPlus size={18} /> Add Specialist
+              <IconPlus size={18} /> {t("addButton")}
             </button>
           )}
         </Card>
@@ -44,14 +46,14 @@ export default function SpecialistsTab({
         <>
           <div className="flex justify-between items-center px-2">
             <h4 className="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-              Specialties ({specialists.length})
+              {t("specialtiesCount", { count: specialists.length })}
             </h4>
             {isOwner && (
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="flex items-center gap-1 text-sm font-bold text-[#00B0D0] hover:text-[#0096b0] dark:text-[#00B0D0] dark:hover:text-[#21b3d5] transition-colors"
               >
-                <IconPlus size={16} /> Add New
+                <IconPlus size={16} /> {t("addNew")}
               </button>
             )}
           </div>

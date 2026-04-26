@@ -29,6 +29,7 @@ import {
   ToggleGroupItem,
 } from "@/components/ui/toggle-group";
 import { DashboardService } from "@/services/api.services";
+import { useTranslations, useLocale } from "next-intl";
 
 interface ChartAreaInteractiveProps {
   dashboardType: string;
@@ -42,6 +43,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ChartAreaInteractive({ dashboardType }: ChartAreaInteractiveProps) {
+  const t = useTranslations("dashboard.chart");
+  const locale = useLocale();                    // "en" or "ar"
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState("90d");
   const [chartData, setChartData] = React.useState<any[]>([]);
@@ -50,11 +53,7 @@ export function ChartAreaInteractive({ dashboardType }: ChartAreaInteractiveProp
 
   // For labs, default to lab_bookings; for others, appointments
   React.useEffect(() => {
-    if (dashboardType === "lab") {
-      setChartType("lab_bookings");
-    } else {
-      setChartType("appointments");
-    }
+    setChartType(dashboardType === "lab" ? "lab_bookings" : "appointments");
   }, [dashboardType]);
 
   React.useEffect(() => {
@@ -79,20 +78,30 @@ export function ChartAreaInteractive({ dashboardType }: ChartAreaInteractiveProp
     fetchData();
   }, [chartType, timeRange]);
 
-  // Don't show chart for doctor or simple entity types that don't have chart data
   if (dashboardType === "doctor") {
     return null;
   }
 
-  const title = chartType === "appointments" ? "Appointments Trend" : "Lab Bookings Trend";
+  // Dynamic title based on chart type
+  const title =
+    chartType === "appointments"
+      ? t("appointmentsTrend")
+      : t("labBookingsTrend");
+
+  // Human‑readable time range label
+  const timeRangeLabel =
+    timeRange === "90d"
+      ? t("last3Months")
+      : timeRange === "30d"
+      ? t("last30Days")
+      : t("last7Days");
 
   return (
     <Card className="@container/card">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>
-          Total for the last{" "}
-          {timeRange === "90d" ? "3 months" : timeRange === "30d" ? "30 days" : "7 days"}
+          {t("totalForLast")} {timeRangeLabel}
         </CardDescription>
         <CardAction>
           {dashboardType !== "lab" && (
@@ -103,31 +112,45 @@ export function ChartAreaInteractive({ dashboardType }: ChartAreaInteractiveProp
               variant="outline"
               className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
             >
-              <ToggleGroupItem value="appointments">Appointments</ToggleGroupItem>
-              <ToggleGroupItem value="lab_bookings">Lab Bookings</ToggleGroupItem>
+              <ToggleGroupItem value="appointments">
+                {t("appointments")}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="lab_bookings">
+                {t("labBookings")}
+              </ToggleGroupItem>
             </ToggleGroup>
           )}
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger
               className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
               size="sm"
-              aria-label="Select a value"
+              aria-label={t("totalForLast")}
             >
-              <SelectValue placeholder="Last 3 months" />
+              <SelectValue placeholder={t("last3Months")} />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
-              <SelectItem value="90d" className="rounded-lg">Last 3 months</SelectItem>
-              <SelectItem value="30d" className="rounded-lg">Last 30 days</SelectItem>
-              <SelectItem value="7d" className="rounded-lg">Last 7 days</SelectItem>
+              <SelectItem value="90d" className="rounded-lg">
+                {t("last3Months")}
+              </SelectItem>
+              <SelectItem value="30d" className="rounded-lg">
+                {t("last30Days")}
+              </SelectItem>
+              <SelectItem value="7d" className="rounded-lg">
+                {t("last7Days")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </CardAction>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         {loading ? (
-          <div className="h-[250px] flex items-center justify-center">Loading chart...</div>
+          <div className="h-[250px] flex items-center justify-center">
+            {t("loading")}
+          </div>
         ) : chartData.length === 0 ? (
-          <div className="h-[250px] flex items-center justify-center text-muted-foreground">No data available</div>
+          <div className="h-[250px] flex items-center justify-center text-muted-foreground">
+            {t("noData")}
+          </div>
         ) : (
           <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
             <AreaChart data={chartData}>
@@ -146,7 +169,10 @@ export function ChartAreaInteractive({ dashboardType }: ChartAreaInteractiveProp
                 minTickGap={32}
                 tickFormatter={(value) => {
                   const date = new Date(value);
-                  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                  return date.toLocaleDateString(locale, {
+                    month: "short",
+                    day: "numeric",
+                  });
                 }}
               />
               <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />

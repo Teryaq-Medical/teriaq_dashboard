@@ -1,6 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { IconActivity } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 
 interface OverviewTabProps {
   data: any;
@@ -9,6 +10,8 @@ interface OverviewTabProps {
 }
 
 export default function OverviewTab({ data, isOwner, onEditAbout }: OverviewTabProps) {
+  const t = useTranslations("overview");
+
   const description = data.about?.bio_details || data.description || "";
   const hasDescription = description.length > 0;
 
@@ -16,15 +19,15 @@ export default function OverviewTab({ data, isOwner, onEditAbout }: OverviewTabP
     <Card className="p-8 rounded-[2rem] border-0 shadow-lg bg-white dark:bg-slate-800 transition-all hover:shadow-xl">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold flex items-center gap-2 text-slate-800 dark:text-white">
-          <IconActivity className="text-[#00B0D0] w-5 h-5" /> 
-          Professional Overview
+          <IconActivity className="text-[#00B0D0] w-5 h-5" />
+          {t("title")}
         </h3>
         {isOwner && (
-          <button 
-            onClick={onEditAbout} 
+          <button
+            onClick={onEditAbout}
             className="text-[#00B0D0] text-sm font-medium px-4 py-2 rounded-full hover:bg-cyan-50 dark:hover:bg-cyan-950/50 transition-colors"
           >
-            Edit
+            {t("edit")}
           </button>
         )}
       </div>
@@ -37,13 +40,13 @@ export default function OverviewTab({ data, isOwner, onEditAbout }: OverviewTabP
       ) : (
         <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-8 text-center border border-dashed border-slate-200 dark:border-slate-700">
           <IconActivity className="mx-auto text-slate-300 dark:text-slate-600 w-10 h-10 mb-3" />
-          <p className="text-slate-400 dark:text-slate-500 font-medium">No description added yet.</p>
+          <p className="text-slate-400 dark:text-slate-500 font-medium">{t("noDescription")}</p>
           {isOwner && (
-            <button 
+            <button
               onClick={onEditAbout}
               className="mt-3 text-[#00B0D0] text-sm hover:underline"
             >
-              + Add a description
+              {t("addDescription")}
             </button>
           )}
         </div>

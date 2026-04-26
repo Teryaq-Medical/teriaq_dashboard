@@ -23,10 +23,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { useTranslations } from "next-intl";
 
 export default function EntitiesPage() {
   const params = useParams();
   const entity = params?.entity as string;
+
+  const t = useTranslations("entities");      // for page-level strings
+  const tableT = useTranslations("table");    // for table columns & modals
 
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +74,7 @@ export default function EntitiesPage() {
       let result;
       if (entity === "un-doctors") {
         const res = await api.get("/un-doctors/");
-        // ✅ Extract the nested data array
+        // extract nested data array – adapt to your API structure
         result = res.data?.data || [];
       } else {
         result = await Entities.getEntities(entity);
@@ -79,7 +83,7 @@ export default function EntitiesPage() {
     } catch (err) {
       console.error(`Failed to fetch ${entity}:`, err);
       setData([]);
-      toast.error(`Failed to load ${entity}.`);
+      toast.error(t("failedToLoad", { entity }));
     } finally {
       setLoading(false);
     }
@@ -137,7 +141,7 @@ export default function EntitiesPage() {
           !payload.license_number ||
           !payload.specialist_name
         ) {
-          toast.error("Please fill all required fields (*)");
+          toast.error(t("fillAllRequired"));
           return;
         }
       } else {
@@ -160,16 +164,19 @@ export default function EntitiesPage() {
           !payload.user_phone ||
           !payload.name
         ) {
-          toast.error("Please fill all required fields (*)");
+          toast.error(t("fillAllRequired"));
           return;
         }
       }
 
       await Entities.createEntity(entity, payload);
       toast.success(
-        `${isDoctor ? "Doctor" : entity.slice(0, -1)} created successfully.`,
+        isDoctor
+          ? t("addSuccessDoctor")
+          : t("addSuccessOther", { entity: entity.slice(0, -1) }),
       );
       setShowAddModal(false);
+      // Reset form
       setFormData({
         email: "",
         password: "",
@@ -190,35 +197,33 @@ export default function EntitiesPage() {
       fetchEntities();
     } catch (error: any) {
       console.error("Creation error:", error);
-      toast.error(error.response?.data?.error || "Failed to create entity.");
+      toast.error(error.response?.data?.error || t("failedToCreate"));
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteEntity = async (id: number) => {
-    if (
-      !confirm(`Are you sure you want to delete this ${entity.slice(0, -1)}?`)
-    )
-      return;
+    const entityLabel = entity === "un-doctors" ? "Unregistered Doctor" : entity.slice(0, -1);
+    if (!confirm(t("deleteConfirmation", { entity: entityLabel }))) return;
     try {
       if (entity === "un-doctors") {
         await api.delete(`/un-doctors/${id}/`);
       } else {
         await Entities.deleteEntity(entity, id);
       }
-      toast.success("Entity deleted successfully.");
+      toast.success(t("deleteSuccess"));
       fetchEntities();
     } catch (error: any) {
       console.error("Delete error:", error);
-      toast.error(error.response?.data?.message || "Failed to delete entity.");
+      toast.error(error.response?.data?.message || t("failedToDelete"));
     }
   };
 
   const isAdmin =
     currentUser?.is_superuser || currentUser?.user_type === "admin";
   const isDoctor = entity === "doctors" || entity === "un-doctors";
-  const showAddButton = isAdmin && entity !== "un-doctors"; // No add for unregistered doctors via this modal
+  const showAddButton = isAdmin && entity !== "un-doctors";
 
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center h-64">
@@ -228,6 +233,12 @@ export default function EntitiesPage() {
       </div>
     </div>
   );
+
+  // Build page title dynamically
+  const pageTitle =
+    entity === "un-doctors"
+      ? `${t("manage")} ${"Unregistered Doctors"}`
+      : `${t("manage")} ${entity}`;
 
   return (
     <SidebarProvider
@@ -245,15 +256,14 @@ export default function EntitiesPage() {
           <div className="flex flex-col gap-4 md:gap-6">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold capitalize text-foreground">
-                Manage{" "}
-                {entity === "un-doctors" ? "Unregistered Doctors" : entity}
+                {pageTitle}
               </h1>
               {showAddButton && (
                 <Button
                   onClick={() => setShowAddModal(true)}
                   className="gap-1 rounded-full bg-[#00B0D0] hover:bg-[#21b3d5] shadow-md"
                 >
-                  <PlusIcon className="h-4 w-4" /> Add New
+                  <PlusIcon className="h-4 w-4" /> {t("addNew")}
                 </Button>
               )}
             </div>
@@ -272,13 +282,15 @@ export default function EntitiesPage() {
         </div>
       </SidebarInset>
 
-      {/* Add Entity Modal - only shown for non-un-doctors */}
+      {/* Add Entity Modal */}
       {showAddButton && (
         <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
           <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border-0 shadow-2xl p-0">
             <DialogHeader className="p-6 border-b border-slate-100">
               <DialogTitle className="text-xl font-bold text-slate-800">
-                Add New {isDoctor ? "Doctor" : entity.slice(0, -1)}
+                {isDoctor
+                  ? `${t("addNew")} ${t("doctorDetails")}`
+                  : `${t("addNew")} ${entity.slice(0, -1)}`}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-6 p-6">
@@ -286,12 +298,12 @@ export default function EntitiesPage() {
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                   <span className="w-1 h-4 bg-[#00B0D0] rounded-full"></span>
-                  User Account
+                  {t("userAccount")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-slate-600">
-                      Email *
+                      {t("email")} *
                     </Label>
                     <Input
                       id="email"
@@ -306,7 +318,7 @@ export default function EntitiesPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-slate-600">
-                      Password *
+                      {t("password")} *
                     </Label>
                     <Input
                       id="password"
@@ -321,7 +333,7 @@ export default function EntitiesPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="full_name" className="text-slate-600">
-                      Full Name *
+                      {t("fullName")} *
                     </Label>
                     <Input
                       id="full_name"
@@ -335,7 +347,7 @@ export default function EntitiesPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone_number" className="text-slate-600">
-                      Phone Number *
+                      {t("phoneNumber")} *
                     </Label>
                     <Input
                       id="phone_number"
@@ -358,83 +370,66 @@ export default function EntitiesPage() {
                 <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                   <span className="w-1 h-4 bg-[#00B0D0] rounded-full"></span>
                   {isDoctor
-                    ? "Doctor Details"
-                    : `${entity.slice(0, -1)} Details`}
+                    ? t("doctorDetails")
+                    : t("entityDetails", { entity: entity.slice(0, -1) })}
                 </h3>
                 {isDoctor ? (
                   <div className="space-y-4">
+                    {/* Address */}
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="address" className="text-slate-600">
+                        {t("address")} *
+                      </Label>
+                      <Input
+                        id="address"
+                        value={formData.address}
+                        onChange={(e) =>
+                          setFormData({ ...formData, address: e.target.value })
+                        }
+                        placeholder="Clinic/Hospital address"
+                        className="rounded-xl"
+                      />
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="address" className="text-slate-600">
-                          Address *
-                        </Label>
-                        <Input
-                          id="address"
-                          value={formData.address}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              address: e.target.value,
-                            })
-                          }
-                          placeholder="Clinic/Hospital address"
-                          className="rounded-xl"
-                        />
-                      </div>
                       <div className="space-y-2">
-                        <Label
-                          htmlFor="license_number"
-                          className="text-slate-600"
-                        >
-                          License Number *
+                        <Label htmlFor="license_number" className="text-slate-600">
+                          {t("licenseNumber")} *
                         </Label>
                         <Input
                           id="license_number"
                           value={formData.license_number}
                           onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              license_number: e.target.value,
-                            })
+                            setFormData({ ...formData, license_number: e.target.value })
                           }
                           placeholder="Medical license number"
                           className="rounded-xl"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label
-                          htmlFor="specialist_name"
-                          className="text-slate-600"
-                        >
-                          Specialization *
+                        <Label htmlFor="specialist_name" className="text-slate-600">
+                          {t("specialization")} *
                         </Label>
                         <Input
                           id="specialist_name"
                           value={formData.specialist_name}
                           onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              specialist_name: e.target.value,
-                            })
+                            setFormData({ ...formData, specialist_name: e.target.value })
                           }
                           placeholder="e.g., Cardiologist"
                           className="rounded-xl"
                         />
                       </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label
-                          htmlFor="profile_image"
-                          className="text-slate-600"
-                        >
-                          Profile Image
+                        <Label htmlFor="profile_image" className="text-slate-600">
+                          {t("profileImage")}
                         </Label>
                         <Input
                           id="profile_image"
                           type="file"
                           accept="image/*"
-                          onChange={(e) =>
-                            handleImageUpload(e, "profile_image")
-                          }
+                          onChange={(e) => handleImageUpload(e, "profile_image")}
                           className="rounded-xl"
                         />
                         {formData.profile_image && (
@@ -446,19 +441,14 @@ export default function EntitiesPage() {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <Label
-                          htmlFor="license_document"
-                          className="text-slate-600"
-                        >
-                          License Document
+                        <Label htmlFor="license_document" className="text-slate-600">
+                          {t("licenseDocument")}
                         </Label>
                         <Input
                           id="license_document"
                           type="file"
                           accept="image/*,.pdf"
-                          onChange={(e) =>
-                            handleImageUpload(e, "license_document")
-                          }
+                          onChange={(e) => handleImageUpload(e, "license_document")}
                           className="rounded-xl"
                         />
                       </div>
@@ -476,10 +466,10 @@ export default function EntitiesPage() {
                         htmlFor="is_verified"
                         className="text-slate-700 font-normal cursor-pointer"
                       >
-                        Mark as Verified
+                        {t("markAsVerified")}
                       </Label>
                       <p className="text-xs text-slate-400 ml-2">
-                        (Verified doctors appear as approved)
+                        {t("verifiedHelp")}
                       </p>
                     </div>
                   </div>
@@ -487,7 +477,7 @@ export default function EntitiesPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="name" className="text-slate-600">
-                        Entity Name *
+                        {t("entityName")} *
                       </Label>
                       <Input
                         id="name"
@@ -500,11 +490,8 @@ export default function EntitiesPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label
-                        htmlFor="address_entity"
-                        className="text-slate-600"
-                      >
-                        Address
+                      <Label htmlFor="address_entity" className="text-slate-600">
+                        {t("address")}
                       </Label>
                       <Input
                         id="address_entity"
@@ -518,7 +505,7 @@ export default function EntitiesPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone_entity" className="text-slate-600">
-                        Phone
+                        {t("phone")}
                       </Label>
                       <Input
                         id="phone_entity"
@@ -532,17 +519,14 @@ export default function EntitiesPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email_entity" className="text-slate-600">
-                        Email
+                        {t("email")}
                       </Label>
                       <Input
                         id="email_entity"
                         type="email"
                         value={formData.email_entity}
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            email_entity: e.target.value,
-                          })
+                          setFormData({ ...formData, email_entity: e.target.value })
                         }
                         placeholder="contact@sunshine.com"
                         className="rounded-xl"
@@ -550,16 +534,13 @@ export default function EntitiesPage() {
                     </div>
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="description" className="text-slate-600">
-                        Description
+                        {t("description")}
                       </Label>
                       <Textarea
                         id="description"
                         value={formData.description}
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            description: e.target.value,
-                          })
+                          setFormData({ ...formData, description: e.target.value })
                         }
                         placeholder="Brief description..."
                         rows={3}
@@ -568,7 +549,7 @@ export default function EntitiesPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="image" className="text-slate-600">
-                        Logo / Image
+                        {t("logoImage")}
                       </Label>
                       <Input
                         id="image"
@@ -595,14 +576,14 @@ export default function EntitiesPage() {
                 onClick={() => setShowAddModal(false)}
                 className="rounded-full px-6 border-slate-300 text-slate-600 hover:bg-slate-100"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 onClick={handleAddEntity}
                 disabled={submitting}
                 className="rounded-full px-6 bg-[#00B0D0] hover:bg-[#21b3d5] shadow-md"
               >
-                {submitting ? "Creating..." : "Create"}
+                {submitting ? t("creating") : t("create")}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -1,7 +1,8 @@
+// services/auth.service.ts
+
 import api from "./api";
 
 export const AuthService = {
-
   // LOGIN
   login: async (email: string, password: string) => {
     const res = await api.post("/login/", {
@@ -12,17 +13,28 @@ export const AuthService = {
     return res.data;
   },
 
-  // CURRENT USER
+  // CURRENT USER (FIXED ✅)
   getCurrentUser: async () => {
-    const res = await api.get("/profile/");
+    try {
+      const res = await api.get("/profile/");
 
-    // handle both formats safely
-    return res.data?.data || res.data;
+      return res.data?.data || res.data;
+    } catch (error: any) {
+      // ✅ VERY IMPORTANT
+      if (error.response?.status === 401) {
+        return null; // ← THIS STOPS THE LOOP
+      }
+
+      throw error;
+    }
   },
 
   // LOGOUT
   logout: async () => {
-    await api.post("/logout/");
-  }
-
+    try {
+      await api.post("/logout/");
+    } catch (error) {
+      console.error("Logout failed");
+    }
+  },
 };

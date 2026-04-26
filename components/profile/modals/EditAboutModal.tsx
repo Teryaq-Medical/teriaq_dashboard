@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface EditAboutModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ export default function EditAboutModal({
   initialAbout,
   onSave,
 }: EditAboutModalProps) {
+  const t = useTranslations("modals.about");
   const [about, setAbout] = useState(initialAbout);
   const [loading, setLoading] = useState(false);
 
@@ -30,11 +32,11 @@ export default function EditAboutModal({
     setLoading(true);
     try {
       await onSave(about);
-      toast.success("Biography updated successfully");
+      toast.success(t("success.updated"));
       onOpenChange(false);
     } catch (error: any) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to update biography");
+      toast.error(error.response?.data?.message || t("errors.generic"));
     } finally {
       setLoading(false);
     }
@@ -44,11 +46,13 @@ export default function EditAboutModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white dark:bg-slate-800 rounded-[2.5rem] border-none shadow-2xl p-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-white">About / Biography</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-white">
+            {t("title")}
+          </DialogTitle>
         </DialogHeader>
         <div className="mt-6 space-y-6">
           <Textarea
-            placeholder="Introduce yourself to patients..."
+            placeholder={t("placeholder")}
             value={about}
             onChange={(e) => setAbout(e.target.value)}
             rows={8}
@@ -59,7 +63,7 @@ export default function EditAboutModal({
             disabled={loading}
             className="w-full bg-[#00B0D0] hover:bg-[#0096b0] h-14 rounded-2xl font-bold text-lg shadow-xl shadow-cyan-100 dark:shadow-cyan-950/50 text-white"
           >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Update Biography"}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : t("saveButton")}
           </Button>
         </div>
       </DialogContent>

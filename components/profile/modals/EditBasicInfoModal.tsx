@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface EditBasicInfoModalProps {
   open: boolean;
@@ -26,6 +27,7 @@ export default function EditBasicInfoModal({
   data,
   onSave,
 }: EditBasicInfoModalProps) {
+  const t = useTranslations("modals.basicInfo");
   const [imagePreview, setImagePreview] = useState<string>(data.image || data.profile_image || "");
   const [imageBase64, setImageBase64] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -63,11 +65,11 @@ export default function EditBasicInfoModal({
         updated.profile_image = imageBase64;
       }
       await onSave(updated);
-      toast.success("Profile information updated successfully");
+      toast.success(t("success.updated"));
       onOpenChange(false);
     } catch (error: any) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to update profile");
+      toast.error(error.response?.data?.message || t("errors.generic"));
     } finally {
       setLoading(false);
     }
@@ -77,11 +79,15 @@ export default function EditBasicInfoModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white dark:bg-slate-800 rounded-[2.5rem] border-none shadow-2xl p-10 max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-white">Basic Information</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-white">
+            {t("title")}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-6 mt-8">
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Profile Image</Label>
+            <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">
+              {t("profileImageLabel")}
+            </Label>
             <div className="flex items-center gap-4">
               {imagePreview && (
                 <img src={imagePreview} alt="Preview" className="w-16 h-16 rounded-2xl object-cover border border-slate-200 dark:border-slate-700" />
@@ -96,36 +102,44 @@ export default function EditBasicInfoModal({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Full Display Name</Label>
-            <Input 
+            <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">
+              {t("fullNameLabel")}
+            </Label>
+            <Input
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white" 
+              className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Practice Location</Label>
-            <Input 
+            <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">
+              {t("addressLabel")}
+            </Label>
+            <Input
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white" 
+              className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Phone Number</Label>
-              <Input 
+              <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">
+                {t("phoneLabel")}
+              </Label>
+              <Input
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white" 
+                className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">Email Address</Label>
-              <Input 
+              <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1">
+                {t("emailLabel")}
+              </Label>
+              <Input
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white" 
+                className="rounded-2xl border-slate-200 dark:border-slate-700 h-12 bg-slate-50/50 dark:bg-slate-800/50 focus:ring-[#00B0D0] dark:text-white"
               />
             </div>
           </div>
@@ -134,7 +148,7 @@ export default function EditBasicInfoModal({
             disabled={loading}
             className="w-full bg-[#00B0D0] hover:bg-[#0096b0] h-14 rounded-2xl font-bold text-lg shadow-xl shadow-cyan-100 dark:shadow-cyan-950/50 mt-4 transition-all text-white"
           >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Save Profile Data"}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : t("saveButton")}
           </Button>
         </div>
       </DialogContent>

@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { IconShieldCheck, IconPlus, IconTrash } from "@tabler/icons-react";
 import { Card } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 interface InsuranceTabProps {
   insurances: any[];
@@ -16,18 +17,35 @@ export default function InsuranceTab({
   onAddInsurance,
   onRemoveInsurance,
 }: InsuranceTabProps) {
+  const t = useTranslations("insurance");
+
+  // Map raw Arabic status values to translation keys
+  const getStatusLabel = (rawStatus: string) => {
+    const statusMap: Record<string, string> = {
+      "تغطية كاملة": t("status.full"),
+      "عادية": t("status.standard"),
+      "جزئية": t("status.partial"),
+      "منتهية": t("status.expired"),
+    };
+    return statusMap[rawStatus] || rawStatus;
+  };
+
   if (insurances.length === 0) {
     return (
       <Card className="p-10 text-center border-dashed border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-[2rem]">
         <IconShieldCheck className="mx-auto text-slate-300 dark:text-slate-600 w-12 h-12 mb-4" />
-        <p className="text-slate-500 dark:text-slate-400 font-medium">No insurance providers listed</p>
-        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Add accepted insurance plans.</p>
+        <p className="text-slate-500 dark:text-slate-400 font-medium">
+          {t("empty.title")}
+        </p>
+        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
+          {t("empty.description")}
+        </p>
         {isOwner && (
           <button
             onClick={onAddInsurance}
             className="mt-5 inline-flex items-center gap-2 px-5 py-2 bg-[#00B0D0] text-white rounded-full text-sm font-medium shadow-md hover:bg-[#21b3d5] transition-all"
           >
-            <IconPlus size={16} /> Add Insurance
+            <IconPlus size={16} /> {t("addButton")}
           </button>
         )}
       </Card>
@@ -43,7 +61,7 @@ export default function InsuranceTab({
             size="sm"
             className="rounded-full bg-[#00B0D0] text-white shadow-md hover:shadow-lg transition-all"
           >
-            <IconPlus size={16} className="mr-1" /> Add Insurance
+            <IconPlus size={16} className="mr-1" /> {t("addButton")}
           </Button>
         )}
       </div>
@@ -59,9 +77,11 @@ export default function InsuranceTab({
                   <IconShieldCheck size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800 dark:text-white">{ins.entity}</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 capitalize">
-                    {ins.status === 'عادية' ? 'Standard' : ins.status === 'تغطية كاملة' ? 'Full Coverage' : ins.status === 'جزئية' ? 'Partial' : 'Expired'}
+                  <h4 className="font-bold text-slate-800 dark:text-white">
+                    {ins.entity}
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {getStatusLabel(ins.status)}
                   </p>
                 </div>
               </div>

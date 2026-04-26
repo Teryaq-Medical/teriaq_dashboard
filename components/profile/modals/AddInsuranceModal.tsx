@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface AddInsuranceModalProps {
   open: boolean;
@@ -26,29 +27,31 @@ export default function AddInsuranceModal({
   setInsurance,
   onSave,
 }: AddInsuranceModalProps) {
+  const t = useTranslations("modals.insurance");
   const [loading, setLoading] = useState(false);
+
   const statusOptions = [
-    { value: "تغطية كاملة", label: "Full Coverage" },
-    { value: "عادية", label: "Standard" },
-    { value: "جزئية", label: "Partial" },
-    { value: "منتهية", label: "Expired" },
+    { value: "تغطية كاملة", label: t("status.full") },
+    { value: "عادية", label: t("status.standard") },
+    { value: "جزئية", label: t("status.partial") },
+    { value: "منتهية", label: t("status.expired") },
   ];
 
   const handleSubmit = async () => {
     if (!insurance.entity.trim()) {
-      toast.error("Provider name is required");
+      toast.error(t("errors.providerRequired"));
       return;
     }
 
     setLoading(true);
     try {
       await onSave(insurance);
-      toast.success("Insurance provider added successfully");
+      toast.success(t("success.added"));
       setInsurance({ entity: "", status: "عادية" });
       onOpenChange(false);
     } catch (error: any) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to add insurance provider");
+      toast.error(error.response?.data?.message || t("errors.generic"));
     } finally {
       setLoading(false);
     }
@@ -59,13 +62,13 @@ export default function AddInsuranceModal({
       <DialogContent className="bg-white dark:bg-slate-800 rounded-[2rem] border-none shadow-2xl p-8 max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-800 dark:text-white">
-            Add Insurance Provider
+            {t("title")}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6 mt-6">
           <div className="space-y-2">
             <Label className="font-semibold text-slate-600 dark:text-slate-300 ml-1">
-              Provider Name
+              {t("providerNameLabel")}
             </Label>
             <Input
               value={insurance.entity}
@@ -76,7 +79,7 @@ export default function AddInsuranceModal({
           </div>
           <div className="space-y-2">
             <Label className="font-semibold text-slate-600 dark:text-slate-300 ml-1">
-              Plan Status
+              {t("planStatusLabel")}
             </Label>
             <select
               value={insurance.status}
@@ -91,7 +94,7 @@ export default function AddInsuranceModal({
             </select>
           </div>
           <Button onClick={handleSubmit} disabled={loading} className="w-full bg-[#00B0D0] hover:bg-[#0096b0] rounded-xl h-14 font-bold text-white shadow-xl shadow-cyan-100 dark:shadow-cyan-950/50 transition-all">
-            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Connect Provider"}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : t("connectButton")}
           </Button>
         </div>
       </DialogContent>

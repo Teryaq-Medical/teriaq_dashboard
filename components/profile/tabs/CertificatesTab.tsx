@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { IconAward, IconPlus, IconTrash } from "@tabler/icons-react";
 import { Card } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 interface CertificatesTabProps {
   certificates: any[];
@@ -16,18 +17,24 @@ export default function CertificatesTab({
   onAddCertificate,
   onRemoveCertificate,
 }: CertificatesTabProps) {
+  const t = useTranslations("certificates");
+
   if (certificates.length === 0) {
     return (
       <Card className="p-10 text-center border-dashed border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-[2rem]">
         <IconAward className="mx-auto text-slate-300 dark:text-slate-600 w-12 h-12 mb-4" />
-        <p className="text-slate-500 dark:text-slate-400 font-medium">No certificates added</p>
-        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Add professional certificates and licenses.</p>
+        <p className="text-slate-500 dark:text-slate-400 font-medium">
+          {t("empty.title")}
+        </p>
+        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
+          {t("empty.description")}
+        </p>
         {isOwner && (
           <button
             onClick={onAddCertificate}
             className="mt-5 inline-flex items-center gap-2 px-5 py-2 bg-[#00B0D0] text-white rounded-full text-sm font-medium shadow-md hover:bg-[#21b3d5] transition-all"
           >
-            <IconPlus size={16} /> Add Certificate
+            <IconPlus size={16} /> {t("addButton")}
           </button>
         )}
       </Card>
@@ -43,7 +50,7 @@ export default function CertificatesTab({
             size="sm"
             className="rounded-full bg-[#00B0D0] text-white shadow-md hover:shadow-lg transition-all"
           >
-            <IconPlus size={16} className="mr-1" /> Add Certificate
+            <IconPlus size={16} className="mr-1" /> {t("addButton")}
           </Button>
         )}
       </div>
@@ -59,8 +66,12 @@ export default function CertificatesTab({
                   <IconAward size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800 dark:text-white">{cert.name}</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{cert.entity}</p>
+                  <h4 className="font-bold text-slate-800 dark:text-white">
+                    {cert.name}
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {cert.entity}
+                  </p>
                 </div>
               </div>
               {isOwner && (

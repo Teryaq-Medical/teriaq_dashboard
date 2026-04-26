@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import Link from "next/link";                          // ✅ default Next.js Link
+import { useLocale } from "next-intl";                 // ✅ to prepend locale
 import {
   closestCenter,
   DndContext,
@@ -81,6 +82,7 @@ import {
 import { toast } from "sonner";
 import { Entities } from "@/services/api.services";
 import api from "@/services/api";
+import { useTranslations } from "next-intl";
 
 interface DataTableProps {
   data: any[];
@@ -144,6 +146,9 @@ export function DataTable({
   onRefresh,
   isAdmin,
 }: DataTableProps) {
+  const t = useTranslations("table");
+  const locale = useLocale();                         // "en" or "ar"
+
   const safeInitialData = React.useMemo(
     () => (Array.isArray(initialData) ? initialData : []),
     [initialData],
@@ -185,7 +190,6 @@ export function DataTable({
         ...baseFields,
         is_verified: entity.is_verified || false,
         allow_online_booking: entity.allow_online_booking || false,
-        // For un-doctors, we store assignments in local state to track changes
         assignments: entity.assignments || [],
       });
     } else {
@@ -200,7 +204,6 @@ export function DataTable({
     setSubmitting(true);
 
     try {
-      // 1. Update UnregisteredDoctor fields (full_name, phone, address, is_verified, allow_online_booking)
       const doctorPayload: any = {};
       let doctorChanged = false;
 
@@ -232,7 +235,6 @@ export function DataTable({
         await api.patch(`/un-doctors/${editingEntity.id}/`, doctorPayload);
       }
 
-      // 2. Update assignment statuses (for un-doctors only)
       if (entityType === "un-doctors" && editForm.assignments) {
         const originalAssignments = editingEntity.assignments || [];
         for (const updatedAssignment of editForm.assignments) {
@@ -248,7 +250,7 @@ export function DataTable({
         }
       }
 
-      toast.success("Entity updated successfully.");
+      toast.success(t("editTitle", { entity: entityType.slice(0, -1) }));
       setEditModalOpen(false);
       if (onRefresh) {
         onRefresh();
@@ -303,7 +305,7 @@ export function DataTable({
       },
       {
         accessorKey: "id",
-        header: "ID",
+        header: t("id"),
         cell: ({ row }) => (
           <span className="font-mono text-xs text-muted-foreground/60">
             #{row.original.id}
@@ -312,19 +314,18 @@ export function DataTable({
       },
     ];
 
+    // Image column (unchanged)
     baseColumns.push({
       id: "image",
       header: "",
       cell: ({ row }) => {
         let imageUrl: string | null = null;
         const entity = row.original;
-
         if (isDoctorLike) {
           imageUrl = entity.profile_image || null;
         } else if (isClinic || isHospital || isLab) {
           imageUrl = entity.image_url || entity.image || null;
         }
-
         return (
           <div className="flex items-center justify-center">
             {imageUrl ? (
@@ -346,14 +347,15 @@ export function DataTable({
       },
     });
 
+    // Name column
     baseColumns.push({
       accessorKey: isDoctorLike ? "full_name" : "name",
-      header: "Name",
+      header: t("name"),
       cell: ({ row }) => {
         const name = isDoctorLike ? row.original.full_name : row.original.name;
         return (
           <Link
-            href={`/entities/${entityType}/${row.original.id}`}
+            href={`/${locale}/entities/${entityType}/${row.original.id}`}
             className="font-bold text-primary hover:opacity-80 transition-opacity"
           >
             {name || "Unnamed Entity"}
@@ -365,7 +367,7 @@ export function DataTable({
     if (isDoctorLike) {
       baseColumns.push({
         accessorKey: "specialist",
-        header: "Specialization",
+        header: t("specialization"),
         cell: ({ row }) => {
           const specialist = row.original.specialist;
           return (
@@ -380,7 +382,7 @@ export function DataTable({
     if (isClinic || isHospital || isLab) {
       baseColumns.push({
         accessorKey: "email",
-        header: "Email",
+        header: t("email"),
         cell: ({ row }) => (
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <IconMail className="size-3.5" />
@@ -392,7 +394,7 @@ export function DataTable({
 
     baseColumns.push({
       accessorKey: isDoctorLike ? "phone_number" : "phone",
-      header: "Phone",
+      header: t("phone"),
       cell: ({ row }) => {
         const phone = isDoctorLike
           ? row.original.phone_number
@@ -407,7 +409,7 @@ export function DataTable({
 
     baseColumns.push({
       accessorKey: "address",
-      header: "Address",
+      header: t("address"),
       cell: ({ row }) => (
         <span className="truncate max-w-[180px] block text-muted-foreground text-xs">
           {row.original.address || "No address provided"}
@@ -418,7 +420,7 @@ export function DataTable({
     if (isDoctorLike) {
       baseColumns.push({
         id: "license",
-        header: "License",
+        header: t("license"),
         cell: ({ row }) => {
           const licenseNumber = row.original.license_number;
           const licenseDoc = row.original.license_document;
@@ -454,7 +456,7 @@ export function DataTable({
                   className="text-xs text-primary hover:underline flex items-center gap-1"
                 >
                   <IconFileText className="size-3" />
-                  View Document
+                  {t("viewDocument")}
                 </a>
               )}
             </div>
@@ -466,7 +468,7 @@ export function DataTable({
     if (!isDoctorLike) {
       baseColumns.push({
         accessorKey: "rating",
-        header: "Rating",
+        header: t("rating"),
         cell: ({ row }) => {
           const rating = row.original.rating;
           const numericRating =
@@ -489,7 +491,7 @@ export function DataTable({
     if (isDoctorLike) {
       baseColumns.push({
         id: "status",
-        header: "Status",
+        header: t("status"),
         cell: ({ row }) => {
           const isVerified = row.original.is_verified;
           const allowOnline = row.original.allow_online_booking;
@@ -509,7 +511,7 @@ export function DataTable({
                 ) : (
                   <IconLoader className="size-3.5 animate-spin" />
                 )}
-                {isVerified ? "Verified" : "Pending"}
+                {isVerified ? t("verified") : t("pending")}
               </Badge>
               {entityType === "un-doctors" && (
                 <>
@@ -543,7 +545,7 @@ export function DataTable({
                       variant="outline"
                       className="gap-1 text-xs bg-gray-100 text-gray-500"
                     >
-                      No assignments
+                      {t("noAssignments")}
                     </Badge>
                   )}
                   <Badge
@@ -559,7 +561,9 @@ export function DataTable({
                     ) : (
                       <IconX className="size-3" />
                     )}
-                    Online {allowOnline ? "Allowed" : "Not Allowed"}
+                    {allowOnline
+                      ? t("onlineAllowed")
+                      : t("onlineNotAllowed")}
                   </Badge>
                 </>
               )}
@@ -583,8 +587,8 @@ export function DataTable({
             className="rounded-xl p-2 min-w-[160px]"
           >
             <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-              <Link href={`/entities/${entityType}/${row.original.id}`}>
-                View Profile
+              <Link href={`/${locale}/entities/${entityType}/${row.original.id}`}>
+                {t("viewProfile")}
               </Link>
             </DropdownMenuItem>
             {isAdmin && (
@@ -593,14 +597,14 @@ export function DataTable({
                   className="rounded-lg cursor-pointer"
                   onClick={() => openEditModal(row.original)}
                 >
-                  <IconEdit size={14} className="mr-2" /> Edit Details
+                  <IconEdit size={14} className="mr-2" /> {t("editDetails")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive font-semibold rounded-lg cursor-pointer"
                   onClick={() => onDelete?.(row.original.id)}
                 >
-                  Delete
+                  {t("delete")}
                 </DropdownMenuItem>
               </>
             )}
@@ -610,15 +614,7 @@ export function DataTable({
     };
 
     return [...baseColumns, actionsColumn];
-  }, [
-    entityType,
-    isAdmin,
-    onDelete,
-    isDoctorLike,
-    isClinic,
-    isHospital,
-    isLab,
-  ]);
+  }, [entityType, isAdmin, onDelete, t, isDoctorLike, isClinic, isHospital, isLab, locale]);
 
   const table = useReactTable({
     data,
@@ -645,6 +641,8 @@ export function DataTable({
       });
     }
   }
+
+  const emptyMessage = t("noEntries", { entity: entityType });
 
   return (
     <>
@@ -692,7 +690,7 @@ export function DataTable({
                       colSpan={columns.length}
                       className="h-32 text-center text-muted-foreground italic"
                     >
-                      No {entityType} entries found.
+                      {emptyMessage}
                     </TableCell>
                   </TableRow>
                 )}
@@ -707,14 +705,14 @@ export function DataTable({
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-card border-border">
           <DialogHeader>
             <DialogTitle className="text-foreground">
-              Edit {entityType.slice(0, -1)} Details
+              {t("editTitle", { entity: entityType.slice(0, -1) })}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="edit-name" className="text-foreground">
-                {isDoctorLike ? "Full Name" : "Name"}
+                {isDoctorLike ? t("fullName") : t("name")}
               </Label>
               <Input
                 id="edit-name"
@@ -726,11 +724,11 @@ export function DataTable({
               />
             </div>
 
-            {/* Email - for non-doctor entities */}
+            {/* Email for non-doctor */}
             {(isClinic || isHospital || isLab) && (
               <div className="space-y-2">
                 <Label htmlFor="edit-email" className="text-foreground">
-                  Email
+                  {t("email")}
                 </Label>
                 <Input
                   id="edit-email"
@@ -747,7 +745,7 @@ export function DataTable({
             {/* Phone */}
             <div className="space-y-2">
               <Label htmlFor="edit-phone" className="text-foreground">
-                Phone
+                {t("phone")}
               </Label>
               <Input
                 id="edit-phone"
@@ -762,7 +760,7 @@ export function DataTable({
             {/* Address */}
             <div className="space-y-2">
               <Label htmlFor="edit-address" className="text-foreground">
-                Address
+                {t("address")}
               </Label>
               <Input
                 id="edit-address"
@@ -774,11 +772,11 @@ export function DataTable({
               />
             </div>
 
-            {/* Description - for non-doctor entities */}
+            {/* Description for non-doctor */}
             {(isClinic || isHospital || isLab) && (
               <div className="space-y-2">
                 <Label htmlFor="edit-description" className="text-foreground">
-                  Description
+                  {t("description")}
                 </Label>
                 <Textarea
                   id="edit-description"
@@ -795,11 +793,11 @@ export function DataTable({
             {/* Doctor-specific fields */}
             {isDoctorLike && (
               <>
-                {/* Assignment Statuses - for un-doctors only */}
+                {/* Assignment Statuses for un-doctors */}
                 {entityType === "un-doctors" && (
                   <div className="space-y-3">
                     <Label className="text-foreground font-medium">
-                      Entity Assignment Statuses
+                      {t("entityAssignmentStatuses")}
                     </Label>
                     {editForm.assignments && editForm.assignments.length > 0 ? (
                       editForm.assignments.map(
@@ -832,15 +830,9 @@ export function DataTable({
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="approved">
-                                  Approved
-                                </SelectItem>
-                                <SelectItem value="rejected">
-                                  Rejected
-                                </SelectItem>
-                                <SelectItem value="inactive">
-                                  Inactive
-                                </SelectItem>
+                                <SelectItem value="approved">Approved</SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -848,7 +840,7 @@ export function DataTable({
                       )
                     ) : (
                       <p className="text-sm text-muted-foreground italic">
-                        No assignments found for this doctor.
+                        {t("noAssignmentsFound")}
                       </p>
                     )}
                   </div>
@@ -857,7 +849,7 @@ export function DataTable({
                 {/* Specialist */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-specialist" className="text-foreground">
-                    Specialist ID
+                    {t("specialistId")}
                   </Label>
                   <Input
                     id="edit-specialist"
@@ -869,7 +861,7 @@ export function DataTable({
                     className="rounded-xl bg-background border-border"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Enter specialist ID (future improvement: dropdown)
+                    {t("specialistIdHelp")}
                   </p>
                 </div>
 
@@ -886,7 +878,7 @@ export function DataTable({
                     htmlFor="edit-is_verified"
                     className="text-foreground font-normal cursor-pointer"
                   >
-                    Verified
+                    {t("verified")}
                   </Label>
                 </div>
 
@@ -907,7 +899,7 @@ export function DataTable({
                       htmlFor="edit-allow_online_booking"
                       className="text-foreground font-normal cursor-pointer"
                     >
-                      Allow Online Booking
+                      {t("allowOnlineBooking")}
                     </Label>
                   </div>
                 )}
@@ -920,14 +912,14 @@ export function DataTable({
               onClick={() => setEditModalOpen(false)}
               className="rounded-full border-border"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               onClick={handleEditSubmit}
               disabled={submitting}
               className="rounded-full bg-primary text-primary-foreground hover:opacity-90"
             >
-              {submitting ? "Saving..." : "Save Changes"}
+              {submitting ? t("saving") : t("saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>

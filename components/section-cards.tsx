@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 interface SectionCardsProps {
   stats: any;
@@ -17,16 +18,49 @@ interface SectionCardsProps {
 }
 
 export function SectionCards({ stats, dashboardType }: SectionCardsProps) {
+  const t = useTranslations("dashboard");
+
   // Admin dashboard
   if (dashboardType === "admin") {
     const cards = [
-      { label: "Total Doctors", value: stats?.doctors || 0, trend: "+12%", icon: <IconTrendingUp />, trendUp: true },
-      { label: "Total Hospitals", value: stats?.hospitals || 0, trend: "+5%", icon: <IconTrendingUp />, trendUp: true },
-      { label: "Total Clinics", value: stats?.clinics || 0, trend: "+8%", icon: <IconTrendingUp />, trendUp: true },
-      { label: "Total Labs", value: stats?.labs || 0, trend: "+3%", icon: <IconTrendingUp />, trendUp: true },
-      { label: "Appointments", value: stats?.appointments || 0, trend: "+15%", icon: <IconTrendingUp />, trendUp: true },
-      { label: "Lab Bookings", value: stats?.lab_bookings || 0, trend: "+10%", icon: <IconTrendingUp />, trendUp: true },
+      {
+        label: t("admin.totalDoctors"),
+        value: stats?.doctors || 0,
+        trend: "+12%",
+        trendUp: true,
+      },
+      {
+        label: t("admin.totalHospitals"),
+        value: stats?.hospitals || 0,
+        trend: "+5%",
+        trendUp: true,
+      },
+      {
+        label: t("admin.totalClinics"),
+        value: stats?.clinics || 0,
+        trend: "+8%",
+        trendUp: true,
+      },
+      {
+        label: t("admin.totalLabs"),
+        value: stats?.labs || 0,
+        trend: "+3%",
+        trendUp: true,
+      },
+      {
+        label: t("admin.appointments"),
+        value: stats?.appointments || 0,
+        trend: "+15%",
+        trendUp: true,
+      },
+      {
+        label: t("admin.labBookings"),
+        value: stats?.lab_bookings || 0,
+        trend: "+10%",
+        trendUp: true,
+      },
     ];
+
     return (
       <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
         {cards.map((card, idx) => (
@@ -37,17 +71,29 @@ export function SectionCards({ stats, dashboardType }: SectionCardsProps) {
                 {card.value}
               </CardTitle>
               <CardAction>
-                <Badge variant="outline" className={card.trendUp ? "text-green-600" : "text-red-600"}>
-                  {card.icon}
+                <Badge
+                  variant="outline"
+                  className={card.trendUp ? "text-green-600" : "text-red-600"}
+                >
+                  {card.trendUp ? (
+                    <IconTrendingUp className="h-4 w-4 mr-1" />
+                  ) : (
+                    <IconTrendingDown className="h-4 w-4 mr-1" />
+                  )}
                   {card.trend}
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className="flex-col items-start gap-1.5 text-sm">
               <div className="line-clamp-1 flex gap-2 font-medium">
-                {card.trendUp ? "Trending up" : "Trending down"} this period
+                {card.trendUp
+                  ? t("admin.trendingUp")
+                  : t("admin.trendingDown")}{" "}
+                {t("admin.thisPeriod")}
               </div>
-              <div className="text-muted-foreground">Total {card.label.toLowerCase()}</div>
+              <div className="text-muted-foreground">
+                {t("admin.total", { label: card.label.toLowerCase() })}
+              </div>
             </CardFooter>
           </Card>
         ))}
@@ -61,17 +107,23 @@ export function SectionCards({ stats, dashboardType }: SectionCardsProps) {
       <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardDescription>Total Appointments</CardDescription>
-            <CardTitle className="text-2xl font-semibold">{stats?.appointments || 0}</CardTitle>
+            <CardDescription>
+              {t("doctor.totalAppointments")}
+            </CardDescription>
+            <CardTitle className="text-2xl font-semibold">
+              {stats?.appointments || 0}
+            </CardTitle>
           </CardHeader>
-          <CardFooter>Your upcoming and past appointments</CardFooter>
+          <CardFooter>{t("doctor.upcomingPast")}</CardFooter>
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Your Rating</CardDescription>
-            <CardTitle className="text-2xl font-semibold">{stats?.rating || 0} / 5</CardTitle>
+            <CardDescription>{t("doctor.yourRating")}</CardDescription>
+            <CardTitle className="text-2xl font-semibold">
+              {stats?.rating || 0} / 5
+            </CardTitle>
           </CardHeader>
-          <CardFooter>Based on patient feedback</CardFooter>
+          <CardFooter>{t("doctor.patientFeedback")}</CardFooter>
         </Card>
       </div>
     );
@@ -83,20 +135,32 @@ export function SectionCards({ stats, dashboardType }: SectionCardsProps) {
       <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardDescription>Specialists</CardDescription>
-            <CardTitle className="text-2xl font-semibold">{stats?.specialists || 0}</CardTitle>
+            <CardDescription>
+              {t("hospitalClinic.specialists")}
+            </CardDescription>
+            <CardTitle className="text-2xl font-semibold">
+              {stats?.specialists || 0}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Doctors on Team</CardDescription>
-            <CardTitle className="text-2xl font-semibold">{stats?.doctors || 0}</CardTitle>
+            <CardDescription>
+              {t("hospitalClinic.doctorsOnTeam")}
+            </CardDescription>
+            <CardTitle className="text-2xl font-semibold">
+              {stats?.doctors || 0}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Appointments</CardDescription>
-            <CardTitle className="text-2xl font-semibold">{stats?.appointments || 0}</CardTitle>
+            <CardDescription>
+              {t("hospitalClinic.appointments")}
+            </CardDescription>
+            <CardTitle className="text-2xl font-semibold">
+              {stats?.appointments || 0}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -109,13 +173,15 @@ export function SectionCards({ stats, dashboardType }: SectionCardsProps) {
       <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardDescription>Total Lab Bookings</CardDescription>
-            <CardTitle className="text-2xl font-semibold">{stats?.bookings || 0}</CardTitle>
+            <CardDescription>{t("lab.totalLabBookings")}</CardDescription>
+            <CardTitle className="text-2xl font-semibold">
+              {stats?.bookings || 0}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Pending Reviews</CardDescription>
+            <CardDescription>{t("lab.pendingReviews")}</CardDescription>
             <CardTitle className="text-2xl font-semibold">0</CardTitle>
           </CardHeader>
         </Card>

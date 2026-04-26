@@ -3,6 +3,8 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ModeToggle } from "./ModeToggle"
 import { ThemeSelector } from "./theme-selector"
+import LanguageSwitcher from "./LanguageSwitcher"
+
 
 export function SiteHeader() {
   return (
@@ -16,6 +18,7 @@ export function SiteHeader() {
         <h1 className="text-base font-medium">Documents</h1>
         <div className="ml-auto flex items-center gap-2">
           <ModeToggle/>
+          <LanguageSwitcher/>
         </div>
       </div>
     </header>

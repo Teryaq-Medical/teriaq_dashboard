@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 import { usePathname } from "next/navigation";
 import type React from "react"; // <-- optional but good practice
 import {

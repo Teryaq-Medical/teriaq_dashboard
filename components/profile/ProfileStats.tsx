@@ -1,5 +1,6 @@
 import React from "react";
 import { IconClipboardList, IconCircleCheck, IconStarFilled } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 
 interface ProfileStatsProps {
   stats: any;
@@ -7,24 +8,26 @@ interface ProfileStatsProps {
 }
 
 export default function ProfileStats({ stats, rating }: ProfileStatsProps) {
+  const t = useTranslations("profileStats");
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <StatCard
-        label="Total Bookings"
+        label={t("totalBookings")}
         value={stats.total}
-        trend="Overall"
+        trend={t("overall")}
         icon={<IconClipboardList className="text-cyan-500" size={20} />}
       />
       <StatCard
-        label="Completed"
+        label={t("completed")}
         value={stats.completed}
-        trend="Success"
+        trend={t("success")}
         icon={<IconCircleCheck className="text-green-500" size={20} />}
       />
       <StatCard
-        label="Clinic Rating"
+        label={t("rating")}
         value={rating}
-        trend="Global"
+        trend={t("global")}
         icon={<IconStarFilled className="text-amber-400" size={20} />}
       />
     </div>
@@ -35,11 +38,15 @@ function StatCard({ label, value, trend, icon }: any) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
-        <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{label}</p>
+        <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          {label}
+        </p>
         {icon}
       </div>
       <div className="flex items-baseline gap-2">
-        <h4 className="text-3xl font-black text-slate-900 dark:text-white">{value}</h4>
+        <h4 className="text-3xl font-black text-slate-900 dark:text-white">
+          {value}
+        </h4>
         <span className="text-[9px] font-bold text-[#00B0D0] bg-cyan-50 dark:bg-cyan-950/50 px-2 py-0.5 rounded-full">
           {trend}
         </span>
